@@ -17,7 +17,7 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const REPO = 'Bangkts/bangkts.github.io';
-const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${entry.id}`;
+const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${entry.id}.md`;
 ---
 
 <BaseLayout title={`${entry.data.title} — Bằng Nguyễn`}>
