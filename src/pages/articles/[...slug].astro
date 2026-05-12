@@ -15,6 +15,9 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+const REPO = 'Bangkts/bangkts.github.io';
+const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${entry.id}`;
 ---
 
 <BaseLayout title={`${entry.data.title} — Bằng Nguyễn`}>
@@ -38,7 +41,16 @@ const { Content } = await render(entry);
     </aside>
 
     <main class="article-area">
-      <h1 class="article-title">{entry.data.title}</h1>
+      <div class="title-row">
+        <h1 class="article-title">{entry.data.title}</h1>
+        <a href={editUrl} target="_blank" rel="noopener" class="edit-btn" title="Chỉnh sửa bài viết">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </a>
+      </div>
       <div class="article-body">
         <Content />
       </div>
@@ -90,11 +102,39 @@ const { Content } = await render(entry);
     max-width: 680px;
   }
 
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
   .article-title {
-    font-size: 0.9375rem;   /* 15px — đậm nhưng không quá lớn */
+    font-size: 0.9375rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 1rem;
     line-height: 1.45;
+    flex: 1;
+  }
+
+  .edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: #999;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 0.25rem 0.6rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.15s, border-color 0.15s;
+    margin-top: 0.1rem;
+  }
+
+  .edit-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 </style>
