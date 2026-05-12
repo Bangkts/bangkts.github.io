@@ -21,7 +21,7 @@ In this article, we look at how Pinterest designed that ecosystem and what they 
 What is MCP
 Model Context Protocol (MCP) is an open-source standard that gives large language models a unified way to talk to external tools and data sources.
 
-https://substackcdn.com/image/fetch/$s_!qn5M!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc0acd8c0-dcbb-4462-914c-207889b0bd28_2576x1520.png
+![Pinterest MCP Architecture](https://substackcdn.com/image/fetch/$s_!qn5M!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc0acd8c0-dcbb-4462-914c-207889b0bd28_2576x1520.png)
 
 Instead of writing custom glue code between every AI application and every tool it needs to access, MCP defines a shared client-server protocol. An AI surface acts as the client, an MCP server wraps a tool or data source, and they communicate using a standardized format for discovering tools, invoking them, and returning structured results.
 
