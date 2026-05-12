@@ -4,22 +4,30 @@ interface Props {
 }
 const { text = 'Exploring AI · applying Claude to dev tools' } = Astro.props;
 ---
-<div class="status-bar">
-  <span class="dot"></span>
-  <span>{text}</span>
+<div class="status-wrap">
+  <div class="status-bar">
+    <span class="dot"></span>
+    <span>{text}</span>
+  </div>
 </div>
 
 <style>
-  .status-bar {
+  .status-wrap {
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 1.25rem 1rem 0;
+  }
+
+  .status-bar {
+    display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.35rem 1rem;
     font-size: 0.8rem;
-    color: #4b5563;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
+    color: #555;
+    background: #f3f0eb;
+    border: 1px solid #ddd9d3;
+    border-radius: 999px;
   }
 
   .dot {

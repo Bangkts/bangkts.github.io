@@ -23,12 +23,12 @@ for (const article of allArticles) {
       <h3 class="category-title">{category}</h3>
       <ul>
         {articles.map((article) => {
-          const slug = article.id;
-          const isActive = currentSlug === slug;
+          const slug = article.id.replace(/\.md$/, '');
+          const isActive = currentSlug === article.id;
           return (
             <li>
               <a
-                href={`/articles/${slug.replace(/\.md$/, '')}`}
+                href={`/articles/${slug}`}
                 class:list={['article-link', { active: isActive }]}
               >
                 {article.data.title}
@@ -45,50 +45,44 @@ for (const article of allArticles) {
   .sidebar {
     width: var(--sidebar-width);
     flex-shrink: 0;
-    padding: 1.5rem 0;
-    border-right: 1px solid var(--border);
+    padding: 1.5rem 1.25rem 2rem;
     overflow-y: auto;
     position: sticky;
     top: 0;
-    height: calc(100vh - 130px);
+    height: calc(100vh - 200px);
+    border-right: 1px solid var(--border);
   }
 
   .category {
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
+    margin-bottom: 1.75rem;
   }
 
   .category-title {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #9ca3af;
+    color: var(--text);
     margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
   }
 
-  ul {
-    list-style: none;
-  }
+  ul { list-style: none; }
 
   .article-link {
     display: block;
-    padding: 0.35rem 0.6rem;
-    border-radius: 5px;
-    font-size: 0.875rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.84rem;
     color: var(--text-muted);
-    transition: background 0.12s, color 0.12s;
-    line-height: 1.4;
+    line-height: 1.45;
+    transition: color 0.12s;
   }
 
   .article-link:hover {
-    background: var(--bg-hover);
     color: var(--text);
   }
 
   .article-link.active {
-    background: #fff4ed;
-    color: var(--accent);
+    color: var(--text);
     font-weight: 600;
   }
 </style>
