@@ -71,15 +71,13 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   openBtn?.addEventListener('click', () => dialog?.showModal());
   closeBtn?.addEventListener('click', () => dialog?.close());
 
-  // Đóng khi click vùng nền tối (backdrop)
+  // Đóng khi click vùng backdrop
   dialog?.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close();
   });
 
-  // Đóng sau khi chọn bài
-  dialog?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => dialog.close());
-  });
+  // KHÔNG gọi dialog.close() khi click link —
+  // trang static reload toàn bộ, dialog tự biến mất
 </script>
 </BaseLayout>
 
@@ -161,12 +159,7 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     max-height: 72vh;
     overflow: hidden;
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-    /* Căn giữa tuyệt đối */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
+    margin: auto;   /* browser tự căn giữa trong top-layer */
   }
 
   #topics-dialog::backdrop {
