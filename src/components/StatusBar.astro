@@ -1,0 +1,32 @@
+---
+interface Props {
+  text?: string;
+}
+const { text = 'Exploring AI · applying Claude to dev tools' } = Astro.props;
+---
+<div class="status-bar">
+  <span class="dot"></span>
+  <span>{text}</span>
+</div>
+
+<style>
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    color: #4b5563;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+  }
+</style>

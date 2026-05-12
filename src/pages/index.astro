@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('articles');
+articles.sort((a, b) => {
+  const catCmp = a.data.category.localeCompare(b.data.category);
+  if (catCmp !== 0) return catCmp;
+  return (a.data.order ?? 99) - (b.data.order ?? 99);
+});
+
+const first = articles[0];
+const slug = first.id.replace(/\.md$/, '');
+return Astro.redirect(`/articles/${slug}`);
+---

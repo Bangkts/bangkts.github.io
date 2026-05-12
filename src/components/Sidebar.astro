@@ -1,0 +1,94 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  currentSlug?: string;
+}
+const { currentSlug } = Astro.props;
+
+const allArticles = await getCollection('articles');
+allArticles.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+const grouped: Record<string, typeof allArticles> = {};
+for (const article of allArticles) {
+  const cat = article.data.category;
+  if (!grouped[cat]) grouped[cat] = [];
+  grouped[cat].push(article);
+}
+---
+
+<nav class="sidebar">
+  {Object.entries(grouped).map(([category, articles]) => (
+    <div class="category">
+      <h3 class="category-title">{category}</h3>
+      <ul>
+        {articles.map((article) => {
+          const slug = article.id;
+          const isActive = currentSlug === slug;
+          return (
+            <li>
+              <a
+                href={`/articles/${slug.replace(/\.md$/, '')}`}
+                class:list={['article-link', { active: isActive }]}
+              >
+                {article.data.title}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  ))}
+</nav>
+
+<style>
+  .sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    padding: 1.5rem 0;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 130px);
+  }
+
+  .category {
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .category-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  .article-link {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    transition: background 0.12s, color 0.12s;
+    line-height: 1.4;
+  }
+
+  .article-link:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+  }
+
+  .article-link.active {
+    background: #fff4ed;
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

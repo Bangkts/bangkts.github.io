@@ -1,0 +1,57 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatusBar from '../../components/StatusBar.astro';
+import Hero from '../../components/Hero.astro';
+import Sidebar from '../../components/Sidebar.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((entry) => ({
+    params: { slug: entry.id.replace(/\.md$/, '') },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const currentSlug = entry.id;
+---
+
+<BaseLayout title={`${entry.data.title} — Bằng Nguyễn`}>
+  <StatusBar />
+  <Hero />
+  <div class="layout">
+    <Sidebar currentSlug={currentSlug} />
+    <main class="content">
+      <h1 class="article-title">{entry.data.title}</h1>
+      <div class="article-body">
+        <Content />
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: flex;
+    min-height: calc(100vh - 130px);
+  }
+
+  .content {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    max-width: 780px;
+    overflow-x: hidden;
+  }
+
+  .article-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    line-height: 1.4;
+  }
+</style>
