@@ -5,82 +5,66 @@
 }
 
 :root {
-  --accent: #c96644;
-  --text: #1a1a1a;
-  --text-muted: #6b7280;
-  --border: #e8e4df;
-  --bg: #faf9f6;
-  --sidebar-width: 220px;
-  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --accent: #d4674a;
+  --text: #1c1c1c;
+  --text-muted: #888;
+  --border: #ebebeb;
+  --bg: #ffffff;
+  --sidebar-width: 190px;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
 }
 
 html, body {
-  height: 100%;
   font-family: var(--font);
   color: var(--text);
   background: var(--bg);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
 a { color: inherit; text-decoration: none; }
 
-/* Article markdown styles */
 .article-body p {
-  margin-bottom: 1rem;
-  line-height: 1.85;
-  color: #2d2d2d;
-  font-size: 0.95rem;
+  margin-bottom: 0.9rem;
+  line-height: 1.8;
+  color: #333;
+  font-size: 0.9rem;
 }
 
-.article-body h1, .article-body h2, .article-body h3 {
-  margin: 1.75rem 0 0.75rem;
-  line-height: 1.3;
+.article-body h2, .article-body h3 {
+  margin: 1.5rem 0 0.6rem;
+  font-size: 1rem;
 }
-.article-body h1 { font-size: 1.5rem; }
-.article-body h2 { font-size: 1.2rem; }
-.article-body h3 { font-size: 1.05rem; }
 
 .article-body ul, .article-body ol {
-  margin: 0.75rem 0 1rem 1.5rem;
+  margin: 0.5rem 0 0.9rem 1.4rem;
 }
+
 .article-body li {
-  margin-bottom: 0.4rem;
-  line-height: 1.75;
-  color: #2d2d2d;
-  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.7;
+  color: #333;
+  font-size: 0.9rem;
 }
 
 .article-body code {
-  background: #f0ece7;
-  padding: 0.15em 0.4em;
-  border-radius: 4px;
-  font-size: 0.88em;
-  font-family: 'Fira Code', 'Consolas', monospace;
+  background: #f4f4f4;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.85em;
 }
+
+.article-body strong { color: var(--accent); font-weight: 600; }
+.article-body em { color: #666; }
 
 .article-body pre {
   background: #1e1e2e;
   color: #cdd6f4;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
+  padding: 1rem;
+  border-radius: 6px;
   overflow-x: auto;
-  margin: 1rem 0;
-}
-.article-body pre code {
-  background: none;
-  padding: 0;
-  color: inherit;
-  font-size: 0.875rem;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
 }
 
-.article-body blockquote {
-  border-left: 3px solid var(--accent);
-  padding-left: 1rem;
-  color: var(--text-muted);
-  margin: 1rem 0;
-}
-
-.article-body strong { color: var(--accent); font-weight: 600; }
-.article-body em { color: var(--text-muted); }
-.article-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.article-body pre code { background: none; padding: 0; }

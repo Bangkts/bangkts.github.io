@@ -1,6 +1,7 @@
 ---
 title: "How Pinterest Built a Production MCP Ecosystem"
 category: "System Design"
+categoryOrder: 1
 order: 1
 ---
 

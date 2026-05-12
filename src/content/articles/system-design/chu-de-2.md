@@ -1,6 +1,7 @@
 ---
 title: "Chủ đề 2"
 category: "System Design"
+categoryOrder: 1
 order: 2
 ---
 

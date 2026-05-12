@@ -3,14 +3,14 @@
 <section class="hero">
   <div class="name-row">
     <img src="/avatar.svg" alt="Bằng Nguyễn" class="avatar" />
-    <h1 class="name">Bằng Nguyễn</h1>
+    <span class="name">Bằng Nguyễn</span>
   </div>
   <p class="bio">
     Background in <strong>mobile, desktop, and web</strong>. Currently learning
     <strong>AI</strong> and applying <strong>Claude</strong> to developer tooling
     and automation.
   </p>
-  <nav class="social-links">
+  <nav class="social">
     <a href="https://github.com/Bangkts" target="_blank" rel="noopener">GitHub</a>
     <a href="#" target="_blank" rel="noopener">YouTube</a>
     <a href="#" target="_blank" rel="noopener">TikTok</a>
@@ -21,59 +21,55 @@
 
 <style>
   .hero {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 1.75rem 2.5rem 1.5rem;
+    padding: 1.4rem 2rem 1.5rem;
   }
 
   .name-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.9rem;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
   }
 
   .avatar {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #e0dbd4;
+    border: 2px solid #e8e8e8;
     flex-shrink: 0;
   }
 
   .name {
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: 700;
     color: var(--accent);
     line-height: 1;
   }
 
   .bio {
-    font-size: 0.975rem;
-    color: #2d2d2d;
-    line-height: 1.7;
-    margin-bottom: 0.9rem;
-    max-width: 600px;
+    font-size: 0.92rem;
+    color: #222;
+    line-height: 1.65;
+    margin-bottom: 0.85rem;
+    max-width: 560px;
   }
 
   .bio strong {
     color: var(--accent);
-    font-weight: 600;
-  }
-
-  .social-links {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .social-links a {
-    font-size: 0.875rem;
-    color: var(--accent);
     font-weight: 500;
+  }
+
+  .social {
+    display: flex;
+    gap: 1.1rem;
+  }
+
+  .social a {
+    font-size: 0.85rem;
+    color: var(--accent);
     transition: opacity 0.15s;
   }
 
-  .social-links a:hover { opacity: 0.65; }
+  .social a:hover { opacity: 0.6; }
 </style>
