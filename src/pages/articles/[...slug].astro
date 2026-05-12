@@ -23,24 +23,34 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 <BaseLayout title={`${entry.data.title} — Bằng Nguyễn`}>
   <div class="page">
 
-    <!--
-      Cột phải / hàng 1: status bar + hero
-      (cột trái / hàng 1 để trống — sidebar chưa xuất hiện ở đây)
-    -->
+    <!-- Cột phải hàng 1: status bar + hero (desktop) -->
     <div class="hero-area">
       <StatusBar />
       <Hero />
     </div>
 
-    <!--
-      Hàng 2: hai cột song song
-      Cột trái: sidebar | Cột phải: nội dung bài viết
-    -->
+    <!-- Cột trái hàng 2: sidebar (desktop) -->
     <aside class="sidebar-area">
       <Sidebar currentSlug={entry.id} />
     </aside>
 
+    <!-- Cột phải hàng 2: bài viết -->
     <main class="article-area">
+
+      <!-- Mobile only: sidebar thu gọn dạng dropdown -->
+      <details class="mobile-nav">
+        <summary>
+          <span class="mobile-nav-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            Chủ đề
+          </span>
+          <span class="mobile-nav-current">{entry.data.title}</span>
+        </summary>
+        <div class="mobile-nav-body">
+          <Sidebar currentSlug={entry.id} />
+        </div>
+      </details>
+
       <div class="title-row">
         <h1 class="article-title">{entry.data.title}</h1>
         <a href={editUrl} target="_blank" rel="noopener" class="edit-btn" title="Chỉnh sửa bài viết">
@@ -51,6 +61,7 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
           Edit
         </a>
       </div>
+
       <div class="article-body">
         <Content />
       </div>
@@ -60,29 +71,22 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 </BaseLayout>
 
 <style>
+  /* ── DESKTOP layout (grid 2 cột) ── */
   .page {
     display: grid;
     grid-template-columns: 195px 1fr;
     grid-template-rows: auto 1fr;
-    /*
-      hero-area   → cột 2, hàng 1
-      sidebar     → cột 1, hàng 2
-      article     → cột 2, hàng 2
-      (cột 1, hàng 1 để trống)
-    */
     max-width: 960px;
     margin: 0 auto;
     min-height: 100vh;
   }
 
-  /* Cột phải – hàng 1: status bar + hero */
   .hero-area {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
     padding: 0 2.5rem 0.5rem;
   }
 
-  /* Cột trái – hàng 2: sidebar */
   .sidebar-area {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
@@ -93,30 +97,33 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     top: 0;
   }
 
-  /* Cột phải – hàng 2: bài viết */
   .article-area {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
     border-top: 1px solid var(--border);
     padding: 1.5rem 2.5rem 3rem;
     max-width: 680px;
+    min-width: 0;
   }
+
+  /* Mobile nav ẩn trên desktop */
+  .mobile-nav { display: none; }
 
   .title-row {
     display: flex;
-    align-items: center;        /* dóng hàng giữa theo chiều dọc */
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1rem;
   }
 
   .article-title {
-    font-size: 1.0625rem;       /* 17px */
+    font-size: 1.0625rem;
     font-weight: 700;
     color: var(--text);
     line-height: 1.45;
     flex: 1;
-    text-transform: uppercase;  /* viết hoa toàn bộ */
+    text-transform: uppercase;
     letter-spacing: 0.02em;
   }
 
@@ -124,7 +131,7 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.875rem;        /* 14px */
+    font-size: 0.875rem;
     color: #999;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
@@ -137,5 +144,81 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   .edit-btn:hover {
     color: var(--accent);
     border-color: var(--accent);
+  }
+
+  /* ── MOBILE (< 768px) ── */
+  @media (max-width: 768px) {
+    .page {
+      display: block;       /* bỏ grid, về 1 cột */
+    }
+
+    .hero-area {
+      padding: 0 1.25rem 0.5rem;
+    }
+
+    /* Ẩn sidebar desktop */
+    .sidebar-area {
+      display: none;
+    }
+
+    .article-area {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 1.25rem 3rem;
+      max-width: 100%;
+    }
+
+    /* Hiện mobile nav dropdown */
+    .mobile-nav {
+      display: block;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .mobile-nav summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      background: #fafafa;
+    }
+
+    .mobile-nav summary::-webkit-details-marker { display: none; }
+
+    .mobile-nav-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .mobile-nav-current {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .mobile-nav[open] summary {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-nav-body {
+      padding: 1rem 1rem 0.5rem;
+    }
+
+    .article-title {
+      font-size: 0.9375rem;
+    }
   }
 </style>
