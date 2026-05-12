@@ -67,14 +67,21 @@
 
   .social {
     display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 0.85rem;
+    flex-wrap: nowrap;       /* không cho xuống dòng */
     align-items: center;
+    overflow-x: auto;        /* cuộn ngang nếu quá dài */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;   /* ẩn scrollbar */
   }
+
+  .social::-webkit-scrollbar { display: none; }
 
   .social a {
     font-size: 0.9375rem;
     color: var(--accent);
+    white-space: nowrap;
+    flex-shrink: 0;
     transition: opacity 0.15s;
   }
 
@@ -103,11 +110,11 @@
   }
 
   @media (max-width: 768px) {
-    .name  { font-size: 1.5rem; }
-    .bio   { font-size: 0.9375rem; }
+    .name   { font-size: 1.5rem; }
+    .bio    { font-size: 0.9375rem; }
     .avatar { width: 52px; height: 52px; }
+    .social a { font-size: 0.875rem; }
 
-    /* Hiện nút hamburger, đặt đầu tiên */
     .topics-btn {
       display: inline-flex;
       order: -1;
