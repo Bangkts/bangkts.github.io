@@ -68,6 +68,20 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     </main>
 
   </div>
+<script>
+  // Scroll về đầu trang mỗi khi load bài mới
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Mobile: đóng dropdown sau khi chọn bài
+  const mobileNav = document.querySelector('.mobile-nav') as HTMLDetailsElement | null;
+  if (mobileNav) {
+    mobileNav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileNav.removeAttribute('open');
+      });
+    });
+  }
+</script>
 </BaseLayout>
 
 <style>
@@ -104,6 +118,7 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     padding: 1.5rem 2.5rem 3rem;
     max-width: 680px;
     min-width: 0;
+    overflow-anchor: none;
   }
 
   /* Mobile nav ẩn trên desktop */
