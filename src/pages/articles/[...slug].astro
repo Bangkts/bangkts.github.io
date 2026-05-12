@@ -104,25 +104,27 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 
   .title-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;        /* dóng hàng giữa theo chiều dọc */
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1rem;
   }
 
   .article-title {
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;       /* 17px */
     font-weight: 700;
     color: var(--text);
     line-height: 1.45;
     flex: 1;
+    text-transform: uppercase;  /* viết hoa toàn bộ */
+    letter-spacing: 0.02em;
   }
 
   .edit-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.75rem;
+    font-size: 0.875rem;        /* 14px */
     color: #999;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
@@ -130,7 +132,6 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     white-space: nowrap;
     flex-shrink: 0;
     transition: color 0.15s, border-color 0.15s;
-    margin-top: 0.1rem;
   }
 
   .edit-btn:hover {
