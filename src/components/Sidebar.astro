@@ -6,7 +6,6 @@ const { currentSlug } = Astro.props;
 
 const allArticles = await getCollection('articles');
 
-// Group by category
 const grouped: Record<string, { catOrder: number; articles: typeof allArticles }> = {};
 for (const article of allArticles) {
   const cat = article.data.category;
@@ -16,12 +15,10 @@ for (const article of allArticles) {
   grouped[cat].articles.push(article);
 }
 
-// Sort articles within each category by order
 for (const cat of Object.values(grouped)) {
   cat.articles.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
 }
 
-// Sort categories by categoryOrder
 const sortedCategories = Object.entries(grouped).sort((a, b) => a[1].catOrder - b[1].catOrder);
 ---
 
@@ -47,17 +44,9 @@ const sortedCategories = Object.entries(grouped).sort((a, b) => a[1].catOrder - 
 </nav>
 
 <style>
-  .sidebar {
-    width: var(--sidebar-width);
-    flex-shrink: 0;
-    padding: 1.25rem 1.5rem 2rem 0;
-    position: sticky;
-    top: 0;
-    max-height: 100vh;
-    overflow-y: auto;
-  }
+  .sidebar { width: 100%; }
 
-  .group { margin-bottom: 1.5rem; }
+  .group { margin-bottom: 1.4rem; }
 
   .cat-title {
     font-size: 0.82rem;

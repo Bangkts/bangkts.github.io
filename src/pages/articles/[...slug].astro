@@ -19,45 +19,82 @@ const { Content } = await render(entry);
 
 <BaseLayout title={`${entry.data.title} — Bằng Nguyễn`}>
   <div class="page">
-    <StatusBar />
-    <Hero />
-    <div class="body">
-      <Sidebar currentSlug={entry.id} />
-      <main class="content">
-        <h1 class="title">{entry.data.title}</h1>
-        <div class="article-body">
-          <Content />
-        </div>
-      </main>
+
+    <!--
+      Cột phải / hàng 1: status bar + hero
+      (cột trái / hàng 1 để trống — sidebar chưa xuất hiện ở đây)
+    -->
+    <div class="hero-area">
+      <StatusBar />
+      <Hero />
     </div>
+
+    <!--
+      Hàng 2: hai cột song song
+      Cột trái: sidebar | Cột phải: nội dung bài viết
+    -->
+    <aside class="sidebar-area">
+      <Sidebar currentSlug={entry.id} />
+    </aside>
+
+    <main class="article-area">
+      <h1 class="article-title">{entry.data.title}</h1>
+      <div class="article-body">
+        <Content />
+      </div>
+    </main>
+
   </div>
 </BaseLayout>
 
 <style>
   .page {
-    max-width: 860px;
+    display: grid;
+    grid-template-columns: 195px 1fr;
+    grid-template-rows: auto 1fr;
+    /*
+      hero-area   → cột 2, hàng 1
+      sidebar     → cột 1, hàng 2
+      article     → cột 2, hàng 2
+      (cột 1, hàng 1 để trống)
+    */
+    max-width: 960px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    min-height: 100vh;
   }
 
-  .body {
-    display: flex;
-    gap: 2rem;
-    padding-top: 1.25rem;
+  /* Cột phải – hàng 1: status bar + hero */
+  .hero-area {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    padding: 0 2.5rem 0.5rem;
+  }
+
+  /* Cột trái – hàng 2: sidebar */
+  .sidebar-area {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1rem 3rem 1.25rem;
+    align-self: start;
+    position: sticky;
+    top: 0;
+  }
+
+  /* Cột phải – hàng 2: bài viết */
+  .article-area {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
     border-top: 1px solid var(--border);
+    padding: 1.5rem 2.5rem 3rem;
+    max-width: 680px;
   }
 
-  .content {
-    flex: 1;
-    min-width: 0;
-    padding-bottom: 3rem;
-  }
-
-  .title {
+  .article-title {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    margin-bottom: 1.1rem;
+    line-height: 1.45;
   }
 </style>
