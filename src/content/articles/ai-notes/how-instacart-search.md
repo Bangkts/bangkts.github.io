@@ -5,31 +5,6 @@ categoryOrder: 3
 order: 3
 sourceLabel: "ByteByteGo"
 ---
-In 2021, the Instacart search team faced a problem they could trace to their users’ typing habits. One group of shoppers searched for items like “pesto pasta sauce 8oz” and expected the exact product to appear. Another group searched for things like “healthy foods” and expected the system to understand what they meant. These are genuinely different problems. The first asks for precise keyword matching. The second asks the system to grasp intent from vague language.
-
-Solving both required two different retrieval systems running in parallel. One handled keyword search. The other handled semantic search, where meaning rather than exact words drives the result. The setup worked, and for a while it worked well. But maintaining two systems in sync, blending their results into a single ranked list, and keeping both fast enough for millions of daily queries became a tax that grew heavier each quarter.
-
-In this article, we will learn how Instacart’s search infrastructure evolved over the years and the challenges its engineering team faced.
-
-Disclaimer: This post is based on publicly shared details from the Instacart Engineering Team. Please comment if you notice any inaccuracies.
-
-![](https://substackcdn.com/image/fetch/$s_!r5T4!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F06aaf987-618a-4074-84c6-2625879c1678_2086x1654.png)
-
-
-The Shape of Search at Instacart
-Before looking at the technical choices, it helps to understand the workload Instacart’s search has to serve. A catalog with billions of items stretches across thousands of retailers. The system handles millions of search requests every day, with query volume swinging widely from hour to hour.
-
-What makes their problem genuinely unusual is the write side. Grocery items are fast-moving goods. Prices shift multiple times a day. Inventory availability changes as shelves empty and restock. Discounts come and go. As a result, the search database receives billions of writes per day. Those writes include catalog changes, pricing updates, availability data, ancillary tables for ranking and display, personalization signals, and replacement product data.
-
-This combination is crucial. In most search problems, you index once, maybe refresh occasionally, and queries run against a mostly stable dataset. Instacart’s situation inverts this. Their data changes constantly, and every change has to show up in search results within seconds.
-
-Two terms that we should know are precision and recall. Precision is the percentage of retrieved results that are actually relevant. Recall is the percentage of all relevant documents that the system manages to retrieve. A system with high precision returns mostly good results. A system with high recall catches most of the good results that exist. Tuning these tradeoffs is the core game of search, and the architecture determines how much control you have over each.
-
-Agentic Fine-Tuning and Inference with Pioneer (Sponsored)
-![](https://go.bytebytego.com/Fastino_050526)
-
-
-Fine-tuning open-source models manually is a slow, tedious task.
 
 Pioneer is a fine-tuning agent that automates the entire process, allowing users to generate synthetic training data, perform LoRA and full fine-tuning runs, run custom evals, and deploy models to production through a chat interface or API. Once deployed, Pioneer autonomously diagnoses failures and retrains on live data in a continuous loop called adaptive inference.
 
@@ -48,9 +23,7 @@ The team’s response was unusual. Instead of moving to a more specialized searc
 
 ![](https://substackcdn.com/image/fetch/$s_!Rz-2!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F58396898-df1b-4ecb-901a-494de5a82c85_1730x1734.png)
 
-
 The payoff was significant. A normalized data model, where prices, availability, and ML features live in separate joined tables instead of being stuffed into a single document, reduced their write workload by a factor of ten. Only the price table gets touched by a price change, leaving the rest of the system alone. They also gained the ability to store hundreds of gigabytes of ML features alongside documents, which unlocked more sophisticated retrieval models.
-
 
 ![](https://substackcdn.com/image/fetch/$s_!xVFR!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F8d2eedfa-e8c0-42b0-99a6-4cdb32f21fbd_2154x1416.png)
 
@@ -64,7 +37,6 @@ This is where semantic search enters the picture. The idea is to convert text in
 In 2021, Instacart added semantic search to its stack. Since Postgres at the time had yet to gain native ANN support, they built a standalone service using FAISS, a vector search library from Meta. For every incoming query, the system made parallel calls. One call went to Postgres for keyword retrieval. The other went to the FAISS service for semantic retrieval. The application layer merged the two result sets using a weighted ranking step, then passed the top candidates onward to downstream ranking stages that score and order results before they reach the user.
 
 ![](https://substackcdn.com/image/fetch/$s_!-DPG!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F76ae60e3-23a2-4771-bc3b-314592bcb381_1984x2190.png)
-
 
 The architecture worked, and search quality improved significantly. Still, three real problems emerged:
 
@@ -87,11 +59,9 @@ Instacart chose the second path, following the same reasoning as before. Text se
 
 ![](https://substackcdn.com/image/fetch/$s_!brSv!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F174e8a31-33f2-4dcf-ad57-3a6a7cb779c2_2274x2190.png)
 
-
 Before committing, the team built a lab-scale prototype cluster that mimicked production traffic. The prototype confirmed that pgvector could meet their throughput and latency requirements, with better recall than FAISS and only marginally slower speeds on the largest retailers. One honest finding deserves mention. The team tested whether tuning index parameters per retailer catalog size would help and found it offered little benefit. Sometimes the clever optimization simply falls flat.
 
 ![](https://substackcdn.com/image/fetch/$s_!DU8M!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F47a75f46-9cf9-439c-b73a-f6303135eaf9_2556x1416.png)
-
 
 A small simplification came out of the migration as well. In the FAISS era, Instacart maintained a separate vector index for every retailer, adding up to hundreds of indexes to operate. With pgvector, they built hybrid indexes grouped by retailer characteristics, dramatically reducing the operational surface area.
 

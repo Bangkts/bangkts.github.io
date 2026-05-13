@@ -117,30 +117,38 @@ def strip_jina_header(lines: list) -> list:
 
 def strip_site_navigation(lines: list) -> list:
     """
-    Bỏ navigation/UI và sponsor block ở đầu trang.
-    Tìm đoạn văn thực đầu tiên: >= 150 chars, không phải nav/sponsor,
-    VÀ các dòng liền sau cũng không phải sponsor (look-ahead để tránh body text của quảng cáo).
+    Bỏ navigation/UI và tất cả sponsor block ở đầu trang.
+
+    Chiến lược:
+    1. Tìm vị trí sponsor URL/CTA CUỐI CÙNG trong 150 dòng đầu
+    2. Bắt đầu nội dung từ đoạn văn thực NGAY SAU vị trí đó
+    Cách này xử lý được sponsor block nhiều đoạn (không cần biết kích thước block).
     """
     MAX_SCAN = 150
 
+    # Tìm dòng sponsor/nav cuối cùng trong phần đầu
+    # Chỉ track SPONSOR và NAV thực sự, KHÔNG track ảnh article
+    last_sponsor_line = -1
     for i, line in enumerate(lines[:MAX_SCAN]):
         s = line.strip()
-        if not s or IMAGE_ONLY.match(s) or NAV_TEXT.search(s):
+        if SPONSOR_URL.search(s) or SPONSOR_CTA.search(s) or NAV_TEXT.search(s):
+            last_sponsor_line = i
+
+    # Tìm đoạn văn thực đầu tiên SAU last_sponsor_line
+    start = last_sponsor_line + 1
+    for i, line in enumerate(lines[start:], start=start):
+        s = line.strip()
+        if not s:
+            continue
+        if IMAGE_ONLY.match(s) or NAV_TEXT.search(s):
             continue
         if SPONSOR_URL.search(s) or SPONSOR_CTA.search(s):
             continue
         if len(s) < 80 and not s.startswith('##'):
             continue
-
-        # Look-ahead: kiểm tra 8 dòng tiếp theo có chứa sponsor không
-        # Nếu có → đây là body text của sponsor block, bỏ qua
-        upcoming = ' '.join(l.strip() for l in lines[i+1:i+9])
-        if SPONSOR_URL.search(upcoming) or SPONSOR_CTA.search(upcoming):
-            continue
-
-        # Đây thực sự là nội dung bài
         return lines[i:]
 
+    # Fallback: không tìm thấy → trả về từ đầu
     return lines
 
 
@@ -157,30 +165,43 @@ def is_sponsor_paragraph(para: str) -> bool:
 
 def remove_sponsor_blocks(content: str) -> str:
     """
-    Bỏ các block quảng cáo nằm giữa bài.
+    Bỏ các block quảng cáo nằm giữa bài (inline sponsor).
 
-    ByteByteGo thường đặt sponsor trong block:
+    ByteByteGo thường đặt sponsor trong block giữa * * * separators:
       * * *
-      [ảnh sponsor]
-      Text quảng cáo...
-      [CTA →](url)
+      [ảnh sponsor] + mô tả nhiều đoạn + [CTA →](sponsor-url)
       * * *
 
-    Chiến lược: tách thành paragraphs, lọc bỏ paragraph nào là sponsor.
+    Chiến lược:
+    1. Tách nội dung theo * * * separators thành các sections
+    2. Nếu section nào chứa sponsor URL/CTA → bỏ toàn bộ section đó
+    3. Ghép lại các section sạch
     """
-    paragraphs = re.split(r'\n{2,}', content)
-    result = []
+    # Tách theo horizontal rule (*** hoặc --- hoặc ___)
+    HR_SPLIT = re.compile(
+        r'\n\s*(\*\s*){3,}\s*\n|\n\s*(-\s*){3,}\s*\n|\n\s*(_\s*){3,}\s*\n'
+    )
+    sections = HR_SPLIT.split(content)
 
-    for para in paragraphs:
-        stripped = para.strip()
-        # Bỏ horizontal rule đơn thuần (*** hay ---)
-        if HORIZ_RULE.match(stripped):
+    clean_sections = []
+    for section in sections:
+        if section is None:
             continue
+        # Bỏ section là ký tự horizontal rule lặp
+        stripped = section.strip()
+        if re.match(r'^[\*\-\_\s]{1,5}$', stripped):
+            continue
+        # Bỏ section chứa sponsor
         if is_sponsor_paragraph(stripped):
             continue
-        result.append(para)
+        clean_sections.append(section)
 
-    return '\n\n'.join(result)
+    result = '\n\n'.join(s for s in clean_sections if s.strip())
+
+    # Dọn thêm: bỏ từng paragraph đơn lẻ còn sót có sponsor
+    paragraphs = re.split(r'\n{2,}', result)
+    final = [p for p in paragraphs if not is_sponsor_paragraph(p.strip())]
+    return '\n\n'.join(final)
 
 
 def truncate_at_comments(content: str) -> str:
