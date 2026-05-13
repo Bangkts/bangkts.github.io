@@ -13,48 +13,107 @@ Hãy sử dụng hoàn toàn bằng tiếng Việt mỗi khi bắt đầu.
 
 ## Yêu cầu
 
-### Layout (theo file `required features.png`)
+### Layout
 - Dòng trạng thái trên cùng (StatusBar): text ngắn + dấu chấm xanh
 - Hero section: avatar tròn + tên "Bằng Nguyễn" + bio + social links
-- Hai cột bên dưới:
-  - **Sidebar trái (~240px)**: danh sách bài viết nhóm theo category, highlight bài đang xem
-  - **Vùng nội dung phải**: render nội dung bài viết Markdown được chọn
+- Hai cột:
+  - **Cột trái (292px)**: sidebar danh sách bài viết nhóm theo category
+  - **Cột phải**: top = hero, dưới = nội dung bài viết Markdown
 
 ### Bài viết
 - Mỗi bài viết là một file `.md` trong `src/content/articles/<category>/`
-- Thêm bài mới = tạo file `.md` mới, tự động xuất hiện trong sidebar, không cần sửa code
-- Frontmatter bắt buộc: `title`, `category`, `order` (tùy chọn)
+- Frontmatter bắt buộc: `title`, `category`, `categoryOrder`, `order`
+- Frontmatter tuỳ chọn: `source` (URL gốc), `sourceLabel` (tên nguồn)
+- Thêm bài mới = tạo file `.md` mới → tự xuất hiện trong sidebar
 
 ### Triển khai
-- Build bằng `npm run build` → output vào `dist/`
-- Deploy lên GitHub Pages qua GitHub Actions (file `.github/workflows/deploy.yml`)
-- Mỗi lần push lên branch `main` sẽ tự động build và deploy
+- Build: `npm run build` → output vào `dist/`
+- Deploy: GitHub Actions tự động khi push lên `main`
+- Có 2 workflow: `deploy.yml` (deploy trang) và `add-article.yml` (thêm bài tự động)
 
 ## Lệnh thường dùng
 
 ```bash
-npm run dev      # Chạy dev server tại http://localhost:4321
-npm run build    # Build production vào dist/
-npm run preview  # Xem trước bản build
+npm run dev      # Dev server tại http://localhost:4321
+npm run build    # Build production
+npm run preview  # Xem bản build
 ```
 
 ## Tech stack
 
-- **Framework**: Astro (static site generator)
+- **Framework**: Astro 6 (static site generator)
 - **Nội dung**: Markdown với Astro Content Collections
 - **Styling**: CSS thuần (scoped trong Astro components)
 - **Deploy**: GitHub Pages via GitHub Actions
 
-## Cách thêm bài viết mới
+## Cách thêm bài viết
 
-1. Tạo file: `src/content/articles/<tên-category>/tên-bài.md`
-2. Thêm frontmatter:
-   ```
-   ---
-   title: "Tiêu đề bài viết"
-   category: "Tên Category"
-   order: 1
-   ---
-   ```
-3. Viết nội dung Markdown bên dưới
-4. Push lên GitHub → tự động deploy
+### Cách 1 — Tự động từ URL (khuyên dùng)
+1. Vào `https://bangkts.github.io/admin`
+2. Paste URL bài viết gốc
+3. Chọn category, nhập tên nguồn
+4. Bấm **🚀 Thêm bài tự động**
+5. Đợi ~3 phút → bài xuất hiện trên trang
+
+**Cơ chế:** Admin page gọi GitHub Actions API → workflow `add-article.yml` chạy server-side:
+- Fetch nội dung qua `r.jina.ai` (miễn phí, không cần auth)
+- Script Python xử lý: strip navigation, trích title, tạo slug, giữ ảnh
+- Commit file `.md` → trigger `deploy.yml` bằng workflow_dispatch API
+
+**Lưu ý quan trọng:** `GITHUB_TOKEN` push KHÔNG tự trigger `push` event trong `deploy.yml`. Workflow `add-article.yml` phải gọi `workflow_dispatch` API sau khi commit mới deploy được.
+
+### Cách 2 — Qua sidebar (nút "+ Thêm chủ đề")
+Click "+ Thêm chủ đề" trong sidebar → mở `/admin` với category pre-selected.
+
+### Cách 3 — Viết tay trực tiếp
+Tạo file: `src/content/articles/<folder>/ten-bai.md`
+
+```markdown
+---
+title: "Tiêu đề bài viết"
+category: "Tên Category"
+categoryOrder: 1
+order: 1
+source: "https://url-bai-goc.com"
+sourceLabel: "Tên nguồn"
+---
+
+Nội dung Markdown ở đây...
+```
+
+Push lên GitHub → tự động deploy.
+
+## Cấu trúc file quan trọng
+
+```
+src/
+├── content/
+│   ├── config.ts                  # Schema: title, category, categoryOrder, order, source, sourceLabel
+│   └── articles/
+│       ├── system-design/         # categoryOrder: 1
+│       ├── programming/           # categoryOrder: 2
+│       └── ai-notes/              # categoryOrder: 3
+├── components/
+│   ├── Hero.astro                 # Avatar + tên + bio + social links
+│   ├── Sidebar.astro              # Nav sidebar với nút thêm/xoá
+│   └── StatusBar.astro            # Dòng trạng thái
+├── pages/
+│   ├── admin.astro                # Trang thêm bài (URL → tự động hoặc tay)
+│   └── articles/[...slug].astro   # Render bài viết
+└── styles/global.css
+
+.github/
+├── workflows/
+│   ├── deploy.yml                 # Deploy lên GitHub Pages
+│   └── add-article.yml            # Tự động thêm bài từ URL
+└── scripts/
+    └── create_article.py          # Python script: jina output → .md chuẩn Astro
+```
+
+## Lưu ý kỹ thuật
+
+- File `.md` phải có extension `.md` và tên không dấu, dùng dấu gạch ngang
+- Tên file có khoảng trắng hoặc thiếu `.md` → Astro không nhận
+- `source: ""` (chuỗi rỗng) sẽ lỗi schema — bỏ field đó nếu không có URL
+- Sidebar width: 292px (CSS var `--sidebar-width`)
+- Font sidebar links: 12px
