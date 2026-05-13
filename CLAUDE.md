@@ -8,7 +8,7 @@ Hãy sử dụng hoàn toàn bằng tiếng Việt mỗi khi bắt đầu.
 
 1. **Đọc `CHANGELOG.md`** — nắm trạng thái mới nhất của dự án trước khi làm bất cứ điều gì
 2. Đọc các file liên quan đến task trước khi sửa
-3. **Kết thúc phiên** — cập nhật `CHANGELOG.md` với những thay đổi vừa thực hiện
+3. **Kết thúc phiên** — gõ `/end-session` để Claude tự tổng hợp thay đổi và cập nhật `CHANGELOG.md`
 
 ## Thông tin dự án
 
