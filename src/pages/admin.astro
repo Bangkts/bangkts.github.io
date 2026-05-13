@@ -219,12 +219,17 @@ order: ${order}`;
 // Save to GitHub
 $('saveBtn').onclick = async () => {
   const token  = $('ghToken').value.trim() || localStorage.getItem('ghToken');
-  const folder = $('folder').value.trim();
-  const file   = $('filename').value.trim();
+  // Bắt buộc slug hoá tên file và folder trước khi lưu
+  const folder = toSlug($('folder').value.trim());
+  const file   = toSlug($('filename').value.trim());
 
   if (!token)         { alert('Nhập GitHub Token trong ⚙️ GitHub Token'); return; }
   if (!folder||!file) { alert('Cần có tên thư mục và tên file'); return; }
   if (!$('title').value.trim()) { alert('Cần có tiêu đề bài viết'); return; }
+
+  // Cập nhật lại input để người dùng thấy tên đã được chuẩn hoá
+  $('folder').value   = folder;
+  $('filename').value = file;
 
   const md   = buildMarkdown();
   const path = `src/content/articles/${folder}/${file}.md`;
