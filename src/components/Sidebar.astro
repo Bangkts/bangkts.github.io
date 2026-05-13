@@ -141,6 +141,14 @@ function addSectionUrl() {
   .article-row:hover .btn-delete { opacity: 1; }
   .btn-delete:hover { color: #e53e3e; }
 
+  /* Mobile: luôn hiện nút xoá vì không có hover */
+  @media (max-width: 768px) {
+    .btn-delete {
+      opacity: 1;
+      color: #ddd;
+    }
+  }
+
   .btn-add-topic {
     display: block;
     margin-top: 0.35rem;
