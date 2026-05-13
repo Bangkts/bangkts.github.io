@@ -4,6 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Hãy sử dụng hoàn toàn bằng tiếng Việt mỗi khi bắt đầu.
 
+## Bắt đầu phiên làm việc mới
+
+1. **Đọc `CHANGELOG.md`** — nắm trạng thái mới nhất của dự án trước khi làm bất cứ điều gì
+2. Đọc các file liên quan đến task trước khi sửa
+3. **Kết thúc phiên** — cập nhật `CHANGELOG.md` với những thay đổi vừa thực hiện
+
 ## Thông tin dự án
 
 - **Repo**: https://github.com/Bangkts/bangkts.github.io
