@@ -13,9 +13,7 @@ Usage:
 """
 
 import argparse
-import os
 import re
-import sys
 import unicodedata
 from pathlib import Path
 
@@ -75,16 +73,35 @@ def fix_images(content: str) -> str:
 
 
 def clean_content(content: str) -> str:
-    """Bỏ phần header metadata của r.jina.ai, giữ nội dung bài."""
+    """
+    Bỏ phần header metadata của r.jina.ai, giữ nội dung bài.
+    Header jina có dạng:
+        Title: ...
+        URL Source: ...
+        Published Time: ...
+
+        [nội dung bài bắt đầu từ đây]
+    """
+    # Pattern các dòng metadata jina thường có
+    META_KEYS = re.compile(
+        r'^(title|url source|url|published time|published|author|description'
+        r'|markdown content|byline|site name)\s*:', re.IGNORECASE
+    )
+
     lines = content.splitlines()
-    # Header của jina có dạng: Title: ...\nURL Source: ...\n...\n\n
-    header_end = 0
-    for i, line in enumerate(lines):
-        if line.strip() == "" and i > 0:
-            header_end = i + 1
+    i = 0
+
+    # Bỏ qua tất cả dòng metadata + dòng trống + separator ở đầu
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if (stripped == ""
+                or META_KEYS.match(stripped)
+                or re.match(r'^[=\-]{3,}$', stripped)):
+            i += 1
+        else:
             break
 
-    body = "\n".join(lines[header_end:]).strip() if header_end > 0 else content.strip()
+    body = "\n".join(lines[i:]).strip()
     return fix_images(body)
 
 
