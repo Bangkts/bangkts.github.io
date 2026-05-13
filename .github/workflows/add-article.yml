@@ -1,0 +1,75 @@
+name: Thêm bài viết từ URL
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL bài viết gốc'
+        required: true
+      source_label:
+        description: 'Tên nguồn (vd: ByteByteGo)'
+        required: false
+        default: 'ByteByteGo'
+      category:
+        description: 'Category'
+        required: true
+        default: 'AI Notes'
+      category_order:
+        description: 'Thứ tự category'
+        required: false
+        default: '3'
+      output_folder:
+        description: 'Thư mục lưu bài (tên folder, vd: ai-notes)'
+        required: false
+        default: 'ai-notes'
+
+permissions:
+  contents: write
+
+jobs:
+  add-article:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch bài viết qua r.jina.ai
+        run: |
+          echo "Fetching: ${{ inputs.url }}"
+          curl -s \
+            -H "Accept: text/markdown" \
+            -H "X-Return-Format: markdown" \
+            "https://r.jina.ai/${{ inputs.url }}" \
+            -o /tmp/article_raw.md
+
+          # Kiểm tra có nội dung không
+          CHARS=$(wc -c < /tmp/article_raw.md)
+          echo "Fetched $CHARS bytes"
+          if [ "$CHARS" -lt 200 ]; then
+            echo "ERROR: Nội dung quá ngắn, có thể URL bị chặn"
+            exit 1
+          fi
+
+      - name: Tạo file .md đúng chuẩn
+        run: |
+          python .github/scripts/create_article.py \
+            --content-file /tmp/article_raw.md \
+            --url "${{ inputs.url }}" \
+            --source-label "${{ inputs.source_label }}" \
+            --category "${{ inputs.category }}" \
+            --category-order ${{ inputs.category_order }} \
+            --output-dir "src/content/articles/${{ inputs.output_folder }}"
+
+      - name: Commit và push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/articles/
+          git diff --staged --quiet && echo "Không có thay đổi" && exit 0
+          git commit -m "feat: tự động thêm bài từ ${{ inputs.url }}"
+          git push
