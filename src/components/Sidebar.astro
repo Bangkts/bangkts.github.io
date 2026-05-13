@@ -59,14 +59,19 @@ function addSectionUrl() {
           {articles.map((article: Article) => {
             const slug      = article.id.replace(/\.md$/, '');
             const isActive  = currentSlug === article.id;
-            const deleteUrl = `${BASE}/delete/main/src/content/articles/${article.id}.md`;
+            const filePath  = `src/content/articles/${article.id}.md`;
             return (
               <li class="article-row">
                 <a href={`/articles/${slug}`} class:list={['link', { active: isActive }]}>
                   {article.data.title}
                 </a>
-                <a href={deleteUrl} target="_blank" rel="noopener"
-                   class="btn-delete" title="Xoá bài viết này">✕</a>
+                <button
+                  class="btn-delete"
+                  title="Xoá bài viết này"
+                  data-file={filePath}
+                  data-title={article.data.title}
+                  data-is-current={isActive ? "true" : "false"}
+                >✕</button>
               </li>
             );
           })}
@@ -128,6 +133,9 @@ function addSectionUrl() {
     line-height: 1;
     transition: opacity 0.15s, color 0.15s;
     cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
   }
 
   .article-row:hover .btn-delete { opacity: 1; }

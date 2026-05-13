@@ -67,6 +67,18 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 
   </div>
 
+  <!-- Popup xác nhận xoá bài -->
+  <dialog id="delete-dialog" class="del-dialog">
+    <p class="del-heading">Xoá bài viết?</p>
+    <p class="del-name" id="delete-title"></p>
+    <p class="del-sub">Hành động này không thể hoàn tác.</p>
+    <div id="delete-msg" class="del-msg"></div>
+    <div class="del-btns">
+      <button id="delete-cancel-btn"  class="del-btn del-btn-cancel">Huỷ</button>
+      <button id="delete-confirm-btn" class="del-btn del-btn-confirm">Xoá</button>
+    </div>
+  </dialog>
+
   <!-- Popup chủ đề (dùng dialog — tự đóng khi bấm Escape) -->
   <dialog id="topics-dialog">
     <div class="dialog-header">
@@ -95,6 +107,105 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 
   // KHÔNG gọi dialog.close() khi click link —
   // trang static reload toàn bộ, dialog tự biến mất
+
+  // ── Xoá bài viết ──────────────────────────────────────────
+  const REPO = 'Bangkts/bangkts.github.io';
+
+  // Popup xác nhận xoá
+  const deleteDialog = document.getElementById('delete-dialog') as HTMLDialogElement | null;
+  const deleteTitle  = document.getElementById('delete-title');
+  const deleteCancelBtn  = document.getElementById('delete-cancel-btn');
+  const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+  const deleteMsg = document.getElementById('delete-msg');
+
+  let pendingFile  = '';
+  let pendingTitle = '';
+  let pendingIsCurrent = false;
+
+  // Gắn sự kiện cho tất cả nút ✕ trong sidebar
+  document.querySelectorAll('.btn-delete').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const el = e.currentTarget as HTMLButtonElement;
+      pendingFile      = el.dataset.file      || '';
+      pendingTitle     = el.dataset.title     || 'bài viết này';
+      pendingIsCurrent = el.dataset.isCurrent === 'true';
+
+      if (deleteTitle) deleteTitle.textContent = pendingTitle;
+      if (deleteMsg)   { deleteMsg.textContent = ''; deleteMsg.className = 'del-msg'; }
+      if (deleteDialog) deleteDialog.showModal();
+    });
+  });
+
+  deleteCancelBtn?.addEventListener('click', () => deleteDialog?.close());
+  deleteDialog?.addEventListener('click', (e) => {
+    if (e.target === deleteDialog) deleteDialog.close();
+  });
+
+  deleteConfirmBtn?.addEventListener('click', async () => {
+    const token = localStorage.getItem('ghToken') || '';
+    if (!token) {
+      showDelMsg('⚠️ Chưa có GitHub Token. Vào /admin → ⚙️ để thêm token.', 'warn');
+      return;
+    }
+
+    if (deleteConfirmBtn) deleteConfirmBtn.disabled = true;
+    showDelMsg('Đang xoá...', 'spin');
+
+    try {
+      // Bước 1: lấy SHA của file
+      const infoRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${pendingFile}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!infoRes.ok) throw new Error('Không tìm thấy file trên GitHub');
+      const info = await infoRes.json();
+
+      // Bước 2: xoá file
+      const delRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${pendingFile}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `feat: xoá bài "${pendingTitle}"`,
+            sha: info.sha,
+            branch: 'main',
+          }),
+        }
+      );
+      if (!delRes.ok) { const e = await delRes.json(); throw new Error(e.message); }
+
+      // Bước 3: trigger deploy
+      await fetch(
+        `https://api.github.com/repos/${REPO}/actions/workflows/deploy.yml/dispatches`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github+json' },
+          body: JSON.stringify({ ref: 'main' }),
+        }
+      );
+
+      showDelMsg('✅ Đã xoá! Trang sẽ cập nhật sau ~2 phút.', 'ok');
+
+      // Nếu đang xem bài vừa xoá → về trang chủ sau 2 giây
+      if (pendingIsCurrent) {
+        setTimeout(() => { window.location.href = '/'; }, 2000);
+      } else {
+        // Reload trang sau 2 giây để sidebar cập nhật
+        setTimeout(() => { window.location.reload(); }, 2000);
+      }
+    } catch (err: any) {
+      showDelMsg(`✗ Lỗi: ${err.message}`, 'err');
+      if (deleteConfirmBtn) deleteConfirmBtn.disabled = false;
+    }
+  });
+
+  function showDelMsg(text: string, cls: string) {
+    if (!deleteMsg) return;
+    deleteMsg.textContent = text;
+    deleteMsg.className   = `del-msg ${cls}`;
+  }
 </script>
 </BaseLayout>
 
@@ -166,6 +277,32 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   }
 
   .edit-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Popup xác nhận xoá ── */
+  .del-dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: min(340px, 88vw);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+    margin: auto;
+  }
+  .del-dialog::backdrop { background: rgba(0,0,0,0.35); backdrop-filter: blur(2px); }
+  .del-heading { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+  .del-name    { font-size: .875rem; color: #444; margin-bottom: .3rem; font-style: italic; }
+  .del-sub     { font-size: .8rem; color: #aaa; margin-bottom: 1rem; }
+  .del-msg     { font-size: .8rem; min-height: 1.2rem; margin-bottom: .75rem; }
+  .del-msg.ok   { color: #16a34a; }
+  .del-msg.err  { color: #dc2626; }
+  .del-msg.warn { color: #d97706; }
+  .del-msg.spin { color: var(--accent); }
+  .del-btns { display: flex; gap: .75rem; justify-content: flex-end; }
+  .del-btn  { padding: .4rem 1rem; border-radius: 6px; font-size: .875rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; }
+  .del-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .del-btn-cancel  { background: #f0f0f0; color: #333; }
+  .del-btn-confirm { background: #dc2626; color: #fff; }
+  .del-btn-cancel:hover  { background: #e0e0e0; }
+  .del-btn-confirm:hover { background: #b91c1c; }
 
   /* Nút đọc bài gốc */
   .source-btn {
