@@ -28,52 +28,82 @@ for (const cat of Object.values(grouped)) {
 
 const sortedCategories: [string, Group][] = Object.entries(grouped)
   .sort(([, a], [, b]) => a.catOrder - b.catOrder);
+
+// Tạo URL thêm chủ đề với template frontmatter điền sẵn
+function addTopicUrl(folder: string, category: string, catOrder: number, nextOrder: number) {
+  const template = [
+    '---',
+    'title: "Tiêu đề bài viết"',
+    `category: "${category}"`,
+    `categoryOrder: ${catOrder}`,
+    `order: ${nextOrder}`,
+    '---',
+    '',
+    'Nội dung bài viết ở đây...',
+  ].join('\n');
+
+  const params = new URLSearchParams({
+    filename: 'ten-bai-viet.md',
+    value: template,
+  });
+  return `${BASE}/new/main/src/content/articles/${folder}?${params.toString()}`;
+}
+
+// URL thêm section mới với template
+function addSectionUrl() {
+  const template = [
+    '---',
+    'title: "Tiêu đề bài viết đầu tiên"',
+    'category: "Tên Section Mới"',
+    'categoryOrder: 10',
+    'order: 1',
+    '---',
+    '',
+    'Nội dung bài viết ở đây...',
+  ].join('\n');
+
+  const params = new URLSearchParams({
+    filename: 'ten-section-moi/ten-bai-viet.md',
+    value: template,
+  });
+  return `${BASE}/new/main/src/content/articles?${params.toString()}`;
+}
 ---
 
 <nav class="sidebar">
-  {sortedCategories.map(([category, { folder, articles }]) => (
-    <div class="group">
-      <p class="cat-title">{category}</p>
-      <ul>
-        {articles.map((article: Article) => {
-          const slug      = article.id.replace(/\.md$/, '');
-          const isActive  = currentSlug === article.id;
-          const deleteUrl = `${BASE}/delete/main/src/content/articles/${article.id}.md`;
-          return (
-            <li class="article-row">
-              <a href={`/articles/${slug}`} class:list={['link', { active: isActive }]}>
-                {article.data.title}
-              </a>
-              <a
-                href={deleteUrl}
-                target="_blank"
-                rel="noopener"
-                class="btn-delete"
-                title="Xoá bài viết này"
-                aria-label="Xoá"
-              >✕</a>
-            </li>
-          );
-        })}
-      </ul>
+  {sortedCategories.map(([category, { folder, articles, catOrder }]) => {
+    const nextOrder = articles.length + 1;
+    const addUrl    = addTopicUrl(folder, category, catOrder, nextOrder);
+    return (
+      <div class="group">
+        <p class="cat-title">{category}</p>
+        <ul>
+          {articles.map((article: Article) => {
+            const slug      = article.id.replace(/\.md$/, '');
+            const isActive  = currentSlug === article.id;
+            const deleteUrl = `${BASE}/delete/main/src/content/articles/${article.id}.md`;
+            return (
+              <li class="article-row">
+                <a href={`/articles/${slug}`} class:list={['link', { active: isActive }]}>
+                  {article.data.title}
+                </a>
+                <a href={deleteUrl} target="_blank" rel="noopener"
+                   class="btn-delete" title="Xoá bài viết này">✕</a>
+              </li>
+            );
+          })}
+        </ul>
 
-      <a
-        href={`${BASE}/new/main/src/content/articles/${folder}`}
-        target="_blank"
-        rel="noopener"
-        class="btn-add-topic"
-        title="Thêm bài viết mới vào section này"
-      >+ Thêm chủ đề</a>
-    </div>
-  ))}
+        <a href={addUrl} target="_blank" rel="noopener" class="btn-add-topic">
+          + Thêm chủ đề
+        </a>
+      </div>
+    );
+  })}
 
-  <a
-    href={`${BASE}/new/main/src/content/articles`}
-    target="_blank"
-    rel="noopener"
-    class="btn-add-section"
-    title="Tạo section mới (nhập tên-section/ten-bai.md)"
-  >+ Thêm Section</a>
+  <a href={addSectionUrl()} target="_blank" rel="noopener" class="btn-add-section">
+    + Thêm Section
+  </a>
 </nav>
 
 <style>
