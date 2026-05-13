@@ -29,27 +29,7 @@ for (const cat of Object.values(grouped)) {
 const sortedCategories: [string, Group][] = Object.entries(grouped)
   .sort(([, a], [, b]) => a.catOrder - b.catOrder);
 
-// Tạo URL thêm chủ đề với template frontmatter điền sẵn
-function addTopicUrl(folder: string, category: string, catOrder: number, nextOrder: number) {
-  const template = [
-    '---',
-    'title: "Tiêu đề bài viết"',
-    `category: "${category}"`,
-    `categoryOrder: ${catOrder}`,
-    `order: ${nextOrder}`,
-    '---',
-    '',
-    'Nội dung bài viết ở đây...',
-  ].join('\n');
-
-  const params = new URLSearchParams({
-    filename: 'ten-bai-viet.md',
-    value: template,
-  });
-  return `${BASE}/new/main/src/content/articles/${folder}?${params.toString()}`;
-}
-
-// URL thêm section mới với template
+// URL thêm section mới với template frontmatter điền sẵn
 function addSectionUrl() {
   const template = [
     '---',
@@ -72,8 +52,6 @@ function addSectionUrl() {
 
 <nav class="sidebar">
   {sortedCategories.map(([category, { folder, articles, catOrder }]) => {
-    const nextOrder = articles.length + 1;
-    const addUrl    = addTopicUrl(folder, category, catOrder, nextOrder);
     return (
       <div class="group">
         <p class="cat-title">{category}</p>
@@ -131,7 +109,7 @@ function addSectionUrl() {
     flex: 1;
     display: block;
     padding: 0.2rem 0;
-    font-size: 0.875rem;
+    font-size: 0.75rem;   /* 14px → 12px */
     color: var(--text-muted);
     line-height: 1.45;
     transition: color 0.1s;
