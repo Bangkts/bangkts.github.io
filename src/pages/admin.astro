@@ -88,7 +88,7 @@
 
   <!-- Bước 3 -->
   <div class="card">
-    <p class="step">Bước 3 — Tạo tóm tắt bằng OpenAI</p>
+    <p class="step">Bước 3 — Tạo tóm tắt bằng Gemini AI (miễn phí)</p>
     <div class="brow">
       <button class="btn btn-p" id="summarizeBtn">✨ Tạo tóm tắt</button>
       <span class="msg" id="summarizeMsg"></span>
@@ -124,8 +124,8 @@
     <div class="card">
       <div class="row">
         <div class="field">
-          <label>OpenAI API Key</label>
-          <input type="password" id="openaiKey" placeholder="sk-..." />
+          <label>Gemini API Key (miễn phí)</label>
+          <input type="password" id="openaiKey" placeholder="AIza..." />
         </div>
         <div class="field">
           <label>GitHub Token (quyền repo + workflow)</label>
@@ -216,19 +216,20 @@ BÀI VIẾT:
 ${content.slice(0, 12000)}`;
 
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2048,
-        temperature: 0.4,
-      }),
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
+        }),
+      }
+    );
     if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || res.statusText); }
     const data = await res.json();
-    const md   = data.choices?.[0]?.message?.content || '';
+    const md   = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!md) throw new Error('Không nhận được nội dung từ OpenAI');
 
     const titleMatch = md.match(/^title:\s*["']?(.+?)["']?\s*$/m);
