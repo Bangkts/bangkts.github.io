@@ -207,7 +207,7 @@
 
   <!-- BƯỚC 3: Tạo tóm tắt -->
   <div class="card">
-    <p class="card-title">Bước 3 — Tạo tóm tắt bằng Claude AI</p>
+    <p class="card-title">Bước 3 — Tạo tóm tắt bằng Gemini AI (miễn phí)</p>
 
     <div class="btn-row">
       <button class="btn btn-primary" id="summarizeBtn">
@@ -251,8 +251,8 @@
     <div class="card">
       <div class="keys-grid">
         <div class="field">
-          <label>Anthropic API Key</label>
-          <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+          <label>Gemini API Key (miễn phí)</label>
+          <input type="password" id="geminiKey" placeholder="AIza..." />
         </div>
         <div class="field">
           <label>GitHub Token (cần quyền repo)</label>
@@ -276,13 +276,13 @@
   const $ = (id) => document.getElementById(id);
 
   function loadKeys() {
-    $('anthropicKey').value = localStorage.getItem('anthropicKey') || '';
-    $('githubToken').value  = localStorage.getItem('githubToken')  || '';
+    $('geminiKey').value   = localStorage.getItem('geminiKey')   || '';
+    $('githubToken').value = localStorage.getItem('githubToken') || '';
   }
 
   $('saveKeysBtn').addEventListener('click', () => {
-    localStorage.setItem('anthropicKey', $('anthropicKey').value.trim());
-    localStorage.setItem('githubToken',  $('githubToken').value.trim());
+    localStorage.setItem('geminiKey',   $('geminiKey').value.trim());
+    localStorage.setItem('githubToken', $('githubToken').value.trim());
     $('keysStatus').textContent = '✓ Đã lưu';
     $('keysStatus').className   = 'status ok';
   });
@@ -333,19 +333,19 @@
     }
   });
 
-  // ── Summarize with Claude ─────────────────────────────────────
+  // ── Summarize with Gemini ────────────────────────────────────
   $('summarizeBtn').addEventListener('click', async () => {
-    const apiKey  = $('anthropicKey').value.trim() || localStorage.getItem('anthropicKey');
+    const apiKey  = $('geminiKey').value.trim() || localStorage.getItem('geminiKey');
     const url     = $('articleUrl').value.trim();
     const label   = $('sourceLabel').value.trim() || 'Nguồn gốc';
     const cat     = $('category').value.trim()    || 'AI Notes';
     const catOrd  = $('categoryOrder').value      || '99';
     const content = $('articleContent').value.trim();
 
-    if (!apiKey)  { alert('Vui lòng nhập Anthropic API Key trong phần ⚙️ Cài đặt'); return; }
+    if (!apiKey)  { alert('Vui lòng nhập Gemini API Key trong phần ⚙️ Cài đặt'); return; }
     if (!content) { alert('Vui lòng có nội dung bài viết (tự động lấy hoặc dán tay)'); return; }
 
-    $('summarizeStatus').textContent = 'Claude đang tóm tắt...';
+    $('summarizeStatus').textContent = 'Gemini đang tóm tắt...';
     $('summarizeStatus').className   = 'status spin';
     $('summarizeBtn').disabled       = true;
 
@@ -374,18 +374,15 @@ BÀI VIẾT GỐC:
 ${content.slice(0, 12000)}`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const endpoint =
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-allow-browser': 'true',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 2048,
-          messages: [{ role: 'user', content: prompt }],
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
         }),
       });
 
@@ -395,7 +392,8 @@ ${content.slice(0, 12000)}`;
       }
 
       const data     = await res.json();
-      const markdown = data.content[0].text;
+      const markdown = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!markdown) throw new Error('Gemini không trả về nội dung');
 
       // Gợi ý tên file từ title trong frontmatter
       const titleMatch = markdown.match(/^title:\s*["']?(.+?)["']?\s*$/m);
