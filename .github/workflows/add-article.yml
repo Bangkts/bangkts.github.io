@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # cần để trigger deploy.yml
 
 jobs:
   add-article:
@@ -32,6 +33,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history để git push không bị lỗi
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -47,7 +50,6 @@ jobs:
             "https://r.jina.ai/${{ inputs.url }}" \
             -o /tmp/article_raw.md
 
-          # Kiểm tra có nội dung không
           CHARS=$(wc -c < /tmp/article_raw.md)
           echo "Fetched $CHARS bytes"
           if [ "$CHARS" -lt 200 ]; then
@@ -66,10 +68,29 @@ jobs:
             --output-dir "src/content/articles/${{ inputs.output_folder }}"
 
       - name: Commit và push
+        id: commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/content/articles/
-          git diff --staged --quiet && echo "Không có thay đổi" && exit 0
-          git commit -m "feat: tự động thêm bài từ ${{ inputs.url }}"
-          git push
+          if git diff --staged --quiet; then
+            echo "Không có file mới — bài có thể đã tồn tại"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "feat: tự động thêm bài từ ${{ inputs.url }}"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      # QUAN TRỌNG: GITHUB_TOKEN push không tự trigger deploy.yml
+      # Phải gọi workflow_dispatch thủ công để kích hoạt deploy
+      - name: Trigger deploy
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "✅ Deploy workflow đã được kích hoạt!"
