@@ -2,14 +2,12 @@
 """
 Nhận nội dung markdown từ r.jina.ai và tạo file .md đúng chuẩn Astro.
 
-Usage:
-  python create_article.py \
-    --content-file /tmp/article.md \
-    --url "https://blog.bytebytego.com/p/..." \
-    --source-label "ByteByteGo" \
-    --category "AI Notes" \
-    --category-order 3 \
-    --output-dir src/content/articles/ai-notes
+Các bước xử lý:
+  1. strip_jina_header     — bỏ metadata jina (Title:, URL Source:, ...)
+  2. strip_site_navigation — bỏ navigation/UI ở đầu trang
+  3. remove_sponsor_blocks — bỏ quảng cáo/sponsor ở đầu và giữa bài
+  4. truncate_at_comments  — cắt tại phần comments/replies cuối bài
+  5. fix_images            — chuẩn hoá ảnh (HTML → markdown, bỏ base64)
 """
 
 import argparse
@@ -17,6 +15,54 @@ import re
 import unicodedata
 from pathlib import Path
 
+
+# ── Patterns ───────────────────────────────────────────────────────────────
+
+# URL tracking/sponsor điển hình
+SPONSOR_URL = re.compile(
+    r'go\.\w+\.com/'           # go.bytebytego.com, go.company.com
+    r'|utm_[a-z_]+'            # UTM tracking params
+    r'|/sponsored'
+    r'|/ref=[a-z]'
+    r'|aff_id=|affid=',
+    re.IGNORECASE,
+)
+
+# Text CTA của quảng cáo
+SPONSOR_CTA = re.compile(
+    r'try\s+\w+\s+(for\s+)?free'
+    r'|get\s+started\s*(for\s+free)?'
+    r'|sign\s+up\s+(for\s+free|today)'
+    r'|start\s+(your\s+)?(free\s+)?trial'
+    r'|\[.{2,60}→\]\(https?://'    # [text →](url) — CTA link với mũi tên
+    r'|\[give\s+your',
+    re.IGNORECASE,
+)
+
+# Dấu hiệu bắt đầu phần comments
+COMMENT_START = re.compile(
+    r'^#{1,4}\s*(all\s+comments?|comments?|discussion|replies?|reader\s+comments?)\s*$'
+    r'|^(leave\s+a\s+comment|top\s+new\s+|join\s+the\s+discussion'
+    r'|\d+\s+comments?\s*$)',
+    re.IGNORECASE,
+)
+
+# Navigation/UI của trang (dùng trong strip_site_navigation)
+NAV_TEXT = re.compile(
+    r'subscribe|sign in|sign up|newsletter|discover more|'
+    r'join over|become a member|by subscribing|already have an account|'
+    r'terms of use|privacy policy|information collection',
+    re.IGNORECASE,
+)
+
+# Dòng chỉ chứa ảnh (markdown image + optional link wrapper)
+IMAGE_ONLY = re.compile(r'^\[?!\[[^\]]*\]\([^)]+\)\]?(?:\([^)]+\))?$')
+
+# Horizontal rule
+HORIZ_RULE = re.compile(r'^\s*(\*\s*){3,}\s*$|^\s*(-\s*){3,}\s*$|^\s*(_\s*){3,}\s*$')
+
+
+# ── Các hàm xử lý ─────────────────────────────────────────────────────────
 
 def slugify(text: str) -> str:
     text = unicodedata.normalize("NFD", text)
@@ -29,14 +75,12 @@ def slugify(text: str) -> str:
 
 
 def extract_title(content: str) -> str:
-    """Lấy title từ dòng 'Title: ...' trong header jina."""
     for line in content.splitlines():
         stripped = line.strip()
         if stripped.lower().startswith("title:"):
             title = stripped[6:].strip().strip('"\'')
             if title:
                 return title
-    # Fallback: H1 heading đầu tiên
     for line in content.splitlines():
         if line.strip().startswith("# "):
             return line.strip()[2:].strip()
@@ -55,7 +99,7 @@ def fix_images(content: str) -> str:
 
 
 def strip_jina_header(lines: list) -> list:
-    """Bỏ phần metadata header của jina.ai (Title:, URL Source:, ...)."""
+    """Bỏ metadata header của jina.ai (Title:, URL Source:, Markdown Content:, ...)."""
     META = re.compile(
         r'^(title|url source|url|published time|published|author|description'
         r'|markdown content|byline|site name|warning)\s*:',
@@ -73,50 +117,93 @@ def strip_jina_header(lines: list) -> list:
 
 def strip_site_navigation(lines: list) -> list:
     """
-    Bỏ phần navigation/UI của trang.
-    Tìm đoạn văn thực đầu tiên: dài >= 150 ký tự, không phải UI/nav/ảnh đơn.
+    Bỏ navigation/UI và sponsor block ở đầu trang.
+    Tìm đoạn văn thực đầu tiên: >= 150 chars, không phải nav/sponsor,
+    VÀ các dòng liền sau cũng không phải sponsor (look-ahead để tránh body text của quảng cáo).
     """
-    NAV_TEXT = re.compile(
-        r'subscribe|sign in|sign up|newsletter|discover more|'
-        r'join over|become a member|by subscribing|already have an account|'
-        r'terms of use|privacy policy|information collection|'
-        r'sponsored|advertisement',
-        re.IGNORECASE,
-    )
-    # Dòng chỉ chứa ảnh (markdown image + optional link wrapper)
-    IMAGE_ONLY = re.compile(r'^\[?!\[[^\]]*\]\([^)]+\)\]?(?:\([^)]+\))?$')
-
     MAX_SCAN = 150
-    best_start = 0
 
     for i, line in enumerate(lines[:MAX_SCAN]):
         s = line.strip()
-        if not s:
+        if not s or IMAGE_ONLY.match(s) or NAV_TEXT.search(s):
             continue
-        # Bỏ qua: dòng chỉ có ảnh
-        if IMAGE_ONLY.match(s):
+        if SPONSOR_URL.search(s) or SPONSOR_CTA.search(s):
             continue
-        # Bỏ qua: dòng navigation/subscription
-        if NAV_TEXT.search(s):
-            continue
-        # Bỏ qua: dòng quá ngắn (< 80 chars) trừ khi là heading ##
         if len(s) < 80 and not s.startswith('##'):
             continue
-        # Đây là nội dung thực
-        best_start = i
-        break
 
-    return lines[best_start:]
+        # Look-ahead: kiểm tra 8 dòng tiếp theo có chứa sponsor không
+        # Nếu có → đây là body text của sponsor block, bỏ qua
+        upcoming = ' '.join(l.strip() for l in lines[i+1:i+9])
+        if SPONSOR_URL.search(upcoming) or SPONSOR_CTA.search(upcoming):
+            continue
+
+        # Đây thực sự là nội dung bài
+        return lines[i:]
+
+    return lines
+
+
+def is_sponsor_paragraph(para: str) -> bool:
+    """True nếu đoạn văn là quảng cáo/sponsor."""
+    # Chứa URL tracking/sponsor
+    if SPONSOR_URL.search(para):
+        return True
+    # Chứa CTA điển hình của quảng cáo
+    if SPONSOR_CTA.search(para):
+        return True
+    return False
+
+
+def remove_sponsor_blocks(content: str) -> str:
+    """
+    Bỏ các block quảng cáo nằm giữa bài.
+
+    ByteByteGo thường đặt sponsor trong block:
+      * * *
+      [ảnh sponsor]
+      Text quảng cáo...
+      [CTA →](url)
+      * * *
+
+    Chiến lược: tách thành paragraphs, lọc bỏ paragraph nào là sponsor.
+    """
+    paragraphs = re.split(r'\n{2,}', content)
+    result = []
+
+    for para in paragraphs:
+        stripped = para.strip()
+        # Bỏ horizontal rule đơn thuần (*** hay ---)
+        if HORIZ_RULE.match(stripped):
+            continue
+        if is_sponsor_paragraph(stripped):
+            continue
+        result.append(para)
+
+    return '\n\n'.join(result)
+
+
+def truncate_at_comments(content: str) -> str:
+    """Cắt nội dung tại điểm bắt đầu phần comments/replies."""
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if COMMENT_START.match(line.strip()):
+            return '\n'.join(lines[:i]).strip()
+    return content
 
 
 def clean_content(raw: str) -> str:
+    """Pipeline đầy đủ: header → nav → sponsor → comments → images."""
     lines = raw.splitlines()
     lines = strip_jina_header(lines)
     lines = strip_site_navigation(lines)
-    body = "\n".join(lines).strip()
+    content = '\n'.join(lines)
+    content = remove_sponsor_blocks(content)
+    content = truncate_at_comments(content)
+    content = fix_images(content)
     # Dọn nhiều dòng trắng liên tiếp
-    body = re.sub(r'\n{3,}', '\n\n', body)
-    return fix_images(body)
+    content = re.sub(r'\n{3,}', '\n\n', content).strip()
+    return content
 
 
 def next_order(output_dir: str) -> int:
@@ -128,12 +215,12 @@ def next_order(output_dir: str) -> int:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--content-file", required=True)
-    parser.add_argument("--url", required=True)
-    parser.add_argument("--source-label", default="")
-    parser.add_argument("--category", required=True)
+    parser.add_argument("--content-file",   required=True)
+    parser.add_argument("--url",            required=True)
+    parser.add_argument("--source-label",   default="")
+    parser.add_argument("--category",       required=True)
     parser.add_argument("--category-order", type=int, default=99)
-    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--output-dir",     required=True)
     args = parser.parse_args()
 
     with open(args.content_file, "r", encoding="utf-8") as f:
