@@ -5,6 +5,15 @@ Format: `## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn`, theo sau là danh sách 
 
 ---
 
+## [2026-05-13 15:29:08] — Cập nhật format timestamp CHANGELOG
+
+### Sửa đổi
+- Format timestamp trong CHANGELOG.md từ `[YYYY-MM-DD]` → `[YYYY-MM-DD HH:MM:SS]`
+- Cập nhật tất cả entry cũ sang format mới
+- Skill `/end-session` dùng `date '+%Y-%m-%d %H:%M:%S'` khi commit
+
+---
+
 ## [2026-05-13 15:26:05] — Cải thiện content pipeline, xoá bài mobile, token inline
 
 ### Thêm mới
