@@ -10,131 +10,126 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --accent: #d4674a; --border: #e8e8e8; --font: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
     body { font-family: var(--font); background: #fafafa; color: #1a1a1a; font-size: 14px; padding: 2rem 1rem; }
-    .wrap { max-width: 720px; margin: 0 auto; }
-    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .sub { font-size: 0.8rem; color: #888; margin-bottom: 2rem; }
+    .wrap { max-width: 780px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: .2rem; }
+    .sub { font-size: .8rem; color: #888; margin-bottom: 1.75rem; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
-    .step { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin-bottom: .9rem; }
+    .step { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin-bottom: .9rem; }
     .field { margin-bottom: .8rem; }
     label { display: block; font-size: .8125rem; font-weight: 600; color: #444; margin-bottom: .3rem; }
-    input[type=text], input[type=url], input[type=password], input[type=number], textarea, select {
+    input[type=text], input[type=url], input[type=password], input[type=number], textarea {
       width: 100%; padding: .45rem .7rem; border: 1px solid var(--border); border-radius: 6px;
       font-size: .875rem; font-family: var(--font); background: #fff; outline: none; transition: border-color .15s;
     }
     input:focus, textarea:focus { border-color: var(--accent); }
-    textarea { resize: vertical; line-height: 1.6; }
+    textarea { resize: vertical; line-height: 1.65; }
     .row { display: flex; gap: .75rem; }
     .row .field { flex: 1; }
-    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.1rem; border-radius: 6px;
-      font-size: .875rem; font-weight: 600; font-family: var(--font); cursor: pointer; border: none; transition: opacity .15s; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.2rem;
+      border-radius: 6px; font-size: .875rem; font-weight: 600; font-family: var(--font);
+      cursor: pointer; border: none; transition: opacity .15s; }
     .btn:hover { opacity: .85; }
     .btn:disabled { opacity: .4; cursor: not-allowed; }
     .btn-p { background: var(--accent); color: #fff; }
     .btn-s { background: #f0f0f0; color: #333; }
     .btn-g { background: #16a34a; color: #fff; }
-    .brow { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
-    .msg { font-size: .8rem; padding: .3rem 0; }
-    .ok  { color: #16a34a; }
-    .err { color: #dc2626; }
+    .brow { display: flex; gap: .75rem; align-items: center; }
+    .msg { font-size: .8rem; }
+    .ok   { color: #16a34a; }
+    .err  { color: #dc2626; }
     .spin { color: var(--accent); }
     details { margin-top: .75rem; }
-    summary { cursor: pointer; font-size: .8rem; color: #888; user-select: none; padding: .4rem 0; }
-    summary:hover { color: #333; }
+    summary { cursor: pointer; font-size: .8rem; color: #999; user-select: none; padding: .35rem 0; }
+    summary:hover { color: #444; }
     details[open] summary { margin-bottom: .75rem; }
-    #preview-card { display: none; }
+    .hint { font-size: .75rem; color: #aaa; margin-top: .3rem; }
     @media(max-width:600px){ .row { flex-direction: column; } }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>✍️ Thêm bài viết mới</h1>
-  <p class="sub">Paste link → AI tóm tắt → lưu thẳng lên GitHub</p>
+  <h1>✍️ Thêm bài viết</h1>
+  <p class="sub">Điền thông tin → viết/dán nội dung → lưu lên GitHub</p>
 
-  <!-- Bước 1 -->
+  <!-- Bước 1: Thông tin -->
   <div class="card">
     <p class="step">Bước 1 — Thông tin bài viết</p>
-    <div class="field">
-      <label>URL bài gốc *</label>
-      <input type="url" id="url" placeholder="https://blog.bytebytego.com/p/..." />
+    <div class="row">
+      <div class="field">
+        <label>Tiêu đề bài viết *</label>
+        <input type="text" id="title" placeholder="Ví dụ: Pinterest xây dựng MCP như thế nào" />
+      </div>
     </div>
     <div class="row">
+      <div class="field">
+        <label>Category *</label>
+        <input type="text" id="category" value="AI Notes" />
+      </div>
+      <div class="field">
+        <label>Thứ tự category</label>
+        <input type="number" id="catOrder" value="3" min="1" style="max-width:80px" />
+      </div>
+      <div class="field">
+        <label>Thứ tự bài</label>
+        <input type="number" id="order" value="1" min="1" style="max-width:80px" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>URL bài gốc</label>
+        <input type="url" id="source" placeholder="https://blog.bytebytego.com/p/..." />
+      </div>
       <div class="field">
         <label>Tên nguồn</label>
         <input type="text" id="sourceLabel" value="ByteByteGo" />
       </div>
-      <div class="field">
-        <label>Category</label>
-        <input type="text" id="category" value="AI Notes" />
-      </div>
-      <div class="field" style="max-width:90px">
-        <label>Order</label>
-        <input type="number" id="catOrder" value="3" min="1" />
-      </div>
     </div>
   </div>
 
-  <!-- Bước 2 -->
+  <!-- Bước 2: Nội dung -->
   <div class="card">
     <p class="step">Bước 2 — Nội dung bài viết</p>
-    <div class="brow" style="margin-bottom:.85rem">
-      <button class="btn btn-s" id="fetchBtn">🔗 Tự động lấy từ URL</button>
-      <span class="msg" id="fetchMsg"></span>
+    <div class="brow" style="margin-bottom:.75rem">
+      <button class="btn btn-s" id="templateBtn">📋 Dùng template mẫu</button>
+      <span style="font-size:.8rem;color:#aaa">hoặc viết/dán nội dung tự do bên dưới</span>
     </div>
-    <div class="field">
-      <label>Hoặc dán nội dung bài vào đây</label>
-      <textarea id="content" rows="8" placeholder="Paste nội dung bài viết nếu tự động lấy không được..."></textarea>
-    </div>
+    <textarea id="content" rows="22" style="font-family:monospace;font-size:.8125rem"
+      placeholder="Viết nội dung Markdown ở đây..."></textarea>
+    <p class="hint">Hỗ trợ Markdown: **in đậm**, *nghiêng*, ## Heading, - bullet, ![ảnh](url)</p>
   </div>
 
-  <!-- Bước 3 -->
+  <!-- Bước 3: Lưu -->
   <div class="card">
-    <p class="step">Bước 3 — Tạo tóm tắt bằng Gemini AI (miễn phí)</p>
-    <div class="brow">
-      <button class="btn btn-p" id="summarizeBtn">✨ Tạo tóm tắt</button>
-      <span class="msg" id="summarizeMsg"></span>
-    </div>
-  </div>
-
-  <!-- Bước 4 -->
-  <div class="card" id="preview-card">
-    <p class="step">Bước 4 — Xem trước &amp; lưu lên GitHub</p>
-    <div class="row" style="margin-bottom:.75rem">
+    <p class="step">Bước 3 — Lưu lên GitHub</p>
+    <div class="row" style="margin-bottom:.85rem">
       <div class="field">
-        <label>Tên file (không dấu)</label>
+        <label>Tên file (tự động tạo từ tiêu đề)</label>
         <input type="text" id="filename" placeholder="ten-bai-viet" />
       </div>
       <div class="field">
-        <label>Thư mục category</label>
+        <label>Thư mục (folder)</label>
         <input type="text" id="folder" placeholder="ai-notes" />
       </div>
     </div>
-    <div class="field">
-      <label>Markdown (có thể chỉnh sửa)</label>
-      <textarea id="md" rows="20" style="font-family:monospace;font-size:.8rem"></textarea>
-    </div>
     <div class="brow">
       <button class="btn btn-g" id="saveBtn">🚀 Lưu lên GitHub</button>
+      <button class="btn btn-s" id="previewFrontmatterBtn">👁 Xem frontmatter</button>
       <span class="msg" id="saveMsg"></span>
     </div>
   </div>
 
-  <!-- API Keys -->
+  <!-- GitHub Token -->
   <details>
-    <summary>⚙️ Cài đặt API Keys (lưu trong browser)</summary>
+    <summary>⚙️ GitHub Token</summary>
     <div class="card">
-      <div class="row">
-        <div class="field">
-          <label>Gemini API Key (miễn phí)</label>
-          <input type="password" id="openaiKey" placeholder="AIza..." />
-        </div>
-        <div class="field">
-          <label>GitHub Token (quyền repo + workflow)</label>
-          <input type="password" id="ghToken" placeholder="ghp_..." />
-        </div>
+      <div class="field">
+        <label>GitHub Personal Access Token (quyền repo + workflow)</label>
+        <input type="password" id="ghToken" placeholder="ghp_..." />
+        <p class="hint">Lấy tại: github.com/settings/tokens/new — tick repo + workflow — 1 year</p>
       </div>
       <div class="brow" style="margin-top:.5rem">
-        <button class="btn btn-s" id="saveKeys">💾 Lưu keys</button>
-        <span class="msg" id="keysMsg"></span>
+        <button class="btn btn-s" id="saveToken">💾 Lưu token</button>
+        <span class="msg" id="tokenMsg"></span>
       </div>
     </div>
   </details>
@@ -145,169 +140,153 @@
 const REPO = 'Bangkts/bangkts.github.io';
 const $ = (id) => document.getElementById(id);
 
-// ── Keys ──────────────────────────────────────────────────────
-function loadKeys() {
-  $('openaiKey').value = localStorage.getItem('openaiKey') || '';
-  $('ghToken').value   = localStorage.getItem('ghToken')   || '';
+// Load token
+$('ghToken').value = localStorage.getItem('ghToken') || '';
+$('saveToken').onclick = () => {
+  localStorage.setItem('ghToken', $('ghToken').value.trim());
+  setMsg('tokenMsg', '✓ Đã lưu', 'ok');
+};
+
+// Auto-fill filename & folder khi đổi title/category
+$('title').addEventListener('input', updateSuggestions);
+$('category').addEventListener('input', updateSuggestions);
+
+function updateSuggestions() {
+  const title = $('title').value.trim();
+  const cat   = $('category').value.trim();
+  if (title)  $('filename').value = toSlug(title).slice(0, 50);
+  if (cat)    $('folder').value   = toSlug(cat);
 }
-$('saveKeys').onclick = () => {
-  localStorage.setItem('openaiKey', $('openaiKey').value.trim());
-  localStorage.setItem('ghToken',   $('ghToken').value.trim());
-  setMsg('keysMsg', '✓ Đã lưu', 'ok');
-};
-loadKeys();
 
-// ── Fetch article ─────────────────────────────────────────────
-$('fetchBtn').onclick = async () => {
-  const url = $('url').value.trim();
-  if (!url) { alert('Nhập URL bài viết trước'); return; }
-  setMsg('fetchMsg', 'Đang tải...', 'spin');
-  $('fetchBtn').disabled = true;
-  try {
-    const res  = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
-    const html = await res.text();
-    const doc  = new DOMParser().parseFromString(html, 'text/html');
-    ['nav','header','footer','script','style','aside'].forEach(t => doc.querySelectorAll(t).forEach(e => e.remove()));
-    const main = doc.querySelector('article, main, .post-content, .body') || doc.body;
-    const text = (main.innerText || main.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
-    if (text.length < 200) throw new Error('Nội dung quá ngắn — site có thể yêu cầu đăng nhập');
-    $('content').value = text.slice(0, 15000);
-    setMsg('fetchMsg', `✓ Lấy được ${text.length.toLocaleString()} ký tự`, 'ok');
-  } catch(e) {
-    setMsg('fetchMsg', `✗ ${e.message} — hãy dán tay`, 'err');
-  }
-  $('fetchBtn').disabled = false;
+// Template
+$('templateBtn').onclick = () => {
+  const label  = $('sourceLabel').value.trim() || 'Nguồn';
+  const source = $('source').value.trim();
+
+  $('content').value =
+`*Đây là tóm tắt và ghi chú cá nhân từ bài viết gốc${source ? ` trên ${label}` : ''}.${source ? '' : ''}*
+
+## Vấn đề / Bối cảnh
+
+(Mô tả vấn đề bài viết đề cập...)
+
+## Ý chính
+
+- Điểm 1
+- Điểm 2
+- Điểm 3
+
+## Chi tiết
+
+(Viết thêm nội dung chi tiết ở đây...)
+
+## Bài học rút ra
+
+> (Ghi chú cá nhân của bạn...)
+`;
+  $('content').focus();
 };
 
-// ── Summarize ─────────────────────────────────────────────────
-$('summarizeBtn').onclick = async () => {
-  const key     = $('openaiKey').value.trim() || localStorage.getItem('openaiKey');
-  const url     = $('url').value.trim();
-  const label   = $('sourceLabel').value.trim() || 'Nguồn';
-  const cat     = $('category').value.trim()    || 'AI Notes';
+// Preview frontmatter
+$('previewFrontmatterBtn').onclick = () => {
+  const md = buildMarkdown();
+  alert('--- FRONTMATTER ---\n\n' + md.split('---')[1]);
+};
+
+function buildMarkdown() {
+  const title   = $('title').value.trim()       || 'Bài viết mới';
+  const cat     = $('category').value.trim()    || 'Ghi chú';
   const catOrd  = $('catOrder').value           || '99';
+  const order   = $('order').value              || '1';
+  const source  = $('source').value.trim();
+  const label   = $('sourceLabel').value.trim();
   const content = $('content').value.trim();
 
-  if (!key)     { alert('Nhập OpenAI API Key trong ⚙️ Cài đặt'); return; }
-  if (!content) { alert('Cần có nội dung bài viết'); return; }
+  let frontmatter =
+`---
+title: "${title.replace(/"/g, "'")}"
+category: "${cat}"
+categoryOrder: ${catOrd}
+order: ${order}`;
 
-  setMsg('summarizeMsg', 'Đang tóm tắt...', 'spin');
-  $('summarizeBtn').disabled = true;
+  if (source)  frontmatter += `\nsource: "${source}"`;
+  if (label)   frontmatter += `\nsourceLabel: "${label}"`;
+  frontmatter += '\n---';
 
-  const prompt =
-`Bạn là trợ lý tóm tắt bài kỹ thuật thành ghi chú học tập bằng tiếng Việt.
+  return `${frontmatter}\n\n${content}`;
+}
 
-Tạo file Markdown với frontmatter Astro:
-- title: tiêu đề tiếng Việt ngắn gọn
-- category: "${cat}"
-- categoryOrder: ${catOrd}
-- order: 1
-- source: "${url}"
-- sourceLabel: "${label}"
-
-Nội dung:
-- Dòng đầu: *Tóm tắt cá nhân từ bài gốc trên ${label}.*
-- Tóm tắt ý chính bằng tiếng Việt, dùng ## heading và bullet points
-- Giữ thuật ngữ kỹ thuật tiếng Anh
-- Thêm ## Bài học rút ra ở cuối
-- Chỉ trả về Markdown, không giải thích thêm
-
-BÀI VIẾT:
-${content.slice(0, 12000)}`;
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
-        }),
-      }
-    );
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || res.statusText); }
-    const data = await res.json();
-    const md   = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    if (!md) throw new Error('Không nhận được nội dung từ OpenAI');
-
-    const titleMatch = md.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-    const slug = toSlug(titleMatch ? titleMatch[1] : 'bai-viet-moi').slice(0, 50);
-    $('filename').value = slug;
-    $('folder').value   = toSlug(cat);
-    $('md').value       = md;
-    $('preview-card').style.display = 'block';
-    $('preview-card').scrollIntoView({ behavior: 'smooth' });
-    setMsg('summarizeMsg', '✓ Xong! Kiểm tra và chỉnh sửa bên dưới.', 'ok');
-  } catch(e) {
-    setMsg('summarizeMsg', `✗ ${e.message}`, 'err');
-  }
-  $('summarizeBtn').disabled = false;
-};
-
-// ── Save to GitHub ────────────────────────────────────────────
+// Save to GitHub
 $('saveBtn').onclick = async () => {
-  const token  = $('ghToken').value.trim()  || localStorage.getItem('ghToken');
+  const token  = $('ghToken').value.trim() || localStorage.getItem('ghToken');
   const folder = $('folder').value.trim();
   const file   = $('filename').value.trim();
-  const md     = $('md').value;
 
-  if (!token)  { alert('Nhập GitHub Token trong ⚙️ Cài đặt'); return; }
-  if (!folder || !file) { alert('Nhập đủ tên thư mục và tên file'); return; }
+  if (!token)         { alert('Nhập GitHub Token trong ⚙️ GitHub Token'); return; }
+  if (!folder||!file) { alert('Cần có tên thư mục và tên file'); return; }
+  if (!$('title').value.trim()) { alert('Cần có tiêu đề bài viết'); return; }
 
-  const path    = `src/content/articles/${folder}/${file}.md`;
-  const encoded = btoa(encodeURIComponent(md).replace(/%([0-9A-F]{2})/g, (_, p) => String.fromCharCode(parseInt(p, 16))));
+  const md   = buildMarkdown();
+  const path = `src/content/articles/${folder}/${file}.md`;
+  const b64  = btoa(encodeURIComponent(md).replace(/%([0-9A-F]{2})/g,
+    (_, p) => String.fromCharCode(parseInt(p, 16))));
 
   setMsg('saveMsg', 'Đang lưu...', 'spin');
   $('saveBtn').disabled = true;
 
   try {
-    // Lấy sha nếu file đã tồn tại
+    // Lấy sha nếu file đã tồn tại (update thay vì tạo mới)
     let sha;
-    const check = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`,
-      { headers: { Authorization: `Bearer ${token}` } });
+    const check = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${path}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     if (check.ok) sha = (await check.json()).sha;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `feat: thêm bài "${file}" vào ${folder}`,
-        content: encoded,
-        branch: 'main',
-        ...(sha ? { sha } : {}),
-      }),
-    });
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${path}`,
+      {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `feat: thêm bài "${file}" vào ${folder}`,
+          content: b64,
+          branch: 'main',
+          ...(sha ? { sha } : {}),
+        }),
+      }
+    );
+
     if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
 
     setMsg('saveMsg',
-      `✓ Đã lưu! Trang sẽ cập nhật sau ~2 phút. <a href="https://bangkts.github.io/articles/${folder}/${file}" target="_blank" style="color:var(--accent)">Xem bài →</a>`,
+      `✓ Đã lưu! Trang cập nhật sau ~2 phút. ` +
+      `<a href="https://bangkts.github.io/articles/${folder}/${file}" ` +
+      `target="_blank" style="color:var(--accent)">Xem bài →</a>`,
       'ok');
 
     setTimeout(() => {
       if (confirm('Lưu thành công! Thêm bài tiếp theo?')) {
-        ['url','content','md','filename','folder'].forEach(id => { $(id).value = ''; });
-        ['fetchMsg','summarizeMsg','saveMsg'].forEach(id => setMsg(id, '', ''));
-        $('preview-card').style.display = 'none';
+        ['title','source','content','filename','folder'].forEach(id => { $(id).value = ''; });
+        $('order').value = '1';
+        setMsg('saveMsg', '', '');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }, 1200);
+    }, 1500);
   } catch(e) {
     setMsg('saveMsg', `✗ ${e.message}`, 'err');
   }
   $('saveBtn').disabled = false;
 };
 
-// ── Helpers ───────────────────────────────────────────────────
-function setMsg(id, text, cls) {
+function setMsg(id, html, cls) {
   const el = $(id);
-  el.innerHTML  = text;
-  el.className  = `msg ${cls}`;
+  el.innerHTML = html;
+  el.className = `msg ${cls}`;
 }
 
-function toSlug(text) {
-  return text.toLowerCase()
+function toSlug(str) {
+  return str.toLowerCase()
     .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g,'a').replace(/[èéẹẻẽêềếệểễ]/g,'e')
     .replace(/[ìíịỉĩ]/g,'i').replace(/[òóọỏõôồốộổỗơờớợởỡ]/g,'o')
     .replace(/[ùúụủũưừứựửữ]/g,'u').replace(/[ỳýỵỷỹ]/g,'y').replace(/đ/g,'d')
