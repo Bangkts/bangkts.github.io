@@ -19,99 +19,111 @@ from pathlib import Path
 
 
 def slugify(text: str) -> str:
-    """Chuyển text thành slug không dấu, dùng dấu gạch ngang."""
-    # Chuẩn hoá unicode → decompose dấu
     text = unicodedata.normalize("NFD", text)
-    # Bỏ dấu combining (tất cả combining characters)
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
-    # Chuyển đ → d
     text = text.replace("đ", "d").replace("Đ", "d")
-    # Lowercase
     text = text.lower()
-    # Giữ chữ cái, số, space, gạch ngang
     text = re.sub(r"[^a-z0-9\s-]", "", text)
-    # Thay nhiều khoảng trắng/gạch ngang bằng 1 gạch ngang
     text = re.sub(r"[\s-]+", "-", text).strip("-")
     return text
 
 
 def extract_title(content: str) -> str:
-    """Lấy title từ output của r.jina.ai (dòng 'Title: ...')."""
+    """Lấy title từ dòng 'Title: ...' trong header jina."""
     for line in content.splitlines():
-        line = line.strip()
-        if line.lower().startswith("title:"):
-            title = line[6:].strip()
-            # Bỏ dấu nháy nếu có
-            title = title.strip('"\'')
+        stripped = line.strip()
+        if stripped.lower().startswith("title:"):
+            title = stripped[6:].strip().strip('"\'')
             if title:
                 return title
-    # Fallback: dòng # heading đầu tiên
+    # Fallback: H1 heading đầu tiên
     for line in content.splitlines():
-        line = line.strip()
-        if line.startswith("# "):
-            return line[2:].strip()
+        if line.strip().startswith("# "):
+            return line.strip()[2:].strip()
     return "Bài viết mới"
 
 
 def fix_images(content: str) -> str:
-    """
-    Đảm bảo tất cả ảnh đều ở dạng markdown chuẩn.
-    - Giữ nguyên: ![alt](url)
-    - Convert HTML: <img src="url"> → ![](url)
-    - Bỏ ảnh data:base64 (quá nặng, không cần thiết)
-    """
-    # Convert <img src="..."> → ![](...)
+    """Convert <img> HTML → markdown, bỏ base64."""
     content = re.sub(
-        r'<img[^>]+src=["\']([^"\']+)["\'][^>]*(?:alt=["\']([^"\']*)["\'])?[^>]*/?>',
+        r'<img[^>]+src=["\']([^"\']+)["\'][^>]*/?>',
         lambda m: f'![]({m.group(1)})',
-        content,
-        flags=re.IGNORECASE,
+        content, flags=re.IGNORECASE,
     )
-    # Bỏ ảnh data:base64
     content = re.sub(r'!\[[^\]]*\]\(data:[^)]+\)', '', content)
     return content
 
 
-def clean_content(content: str) -> str:
-    """
-    Bỏ phần header metadata của r.jina.ai, giữ nội dung bài.
-    Header jina có dạng:
-        Title: ...
-        URL Source: ...
-        Published Time: ...
-
-        [nội dung bài bắt đầu từ đây]
-    """
-    # Pattern các dòng metadata jina thường có
-    META_KEYS = re.compile(
+def strip_jina_header(lines: list) -> list:
+    """Bỏ phần metadata header của jina.ai (Title:, URL Source:, ...)."""
+    META = re.compile(
         r'^(title|url source|url|published time|published|author|description'
-        r'|markdown content|byline|site name)\s*:', re.IGNORECASE
+        r'|markdown content|byline|site name|warning)\s*:',
+        re.IGNORECASE,
     )
-
-    lines = content.splitlines()
     i = 0
-
-    # Bỏ qua tất cả dòng metadata + dòng trống + separator ở đầu
     while i < len(lines):
-        stripped = lines[i].strip()
-        if (stripped == ""
-                or META_KEYS.match(stripped)
-                or re.match(r'^[=\-]{3,}$', stripped)):
+        s = lines[i].strip()
+        if s == "" or META.match(s) or re.match(r'^[=\-]{3,}$', s):
             i += 1
         else:
             break
+    return lines[i:]
 
-    body = "\n".join(lines[i:]).strip()
+
+def strip_site_navigation(lines: list) -> list:
+    """
+    Bỏ phần navigation/UI của trang.
+    Tìm đoạn văn thực đầu tiên: dài >= 150 ký tự, không phải UI/nav/ảnh đơn.
+    """
+    NAV_TEXT = re.compile(
+        r'subscribe|sign in|sign up|newsletter|discover more|'
+        r'join over|become a member|by subscribing|already have an account|'
+        r'terms of use|privacy policy|information collection|'
+        r'sponsored|advertisement',
+        re.IGNORECASE,
+    )
+    # Dòng chỉ chứa ảnh (markdown image + optional link wrapper)
+    IMAGE_ONLY = re.compile(r'^\[?!\[[^\]]*\]\([^)]+\)\]?(?:\([^)]+\))?$')
+
+    MAX_SCAN = 150
+    best_start = 0
+
+    for i, line in enumerate(lines[:MAX_SCAN]):
+        s = line.strip()
+        if not s:
+            continue
+        # Bỏ qua: dòng chỉ có ảnh
+        if IMAGE_ONLY.match(s):
+            continue
+        # Bỏ qua: dòng navigation/subscription
+        if NAV_TEXT.search(s):
+            continue
+        # Bỏ qua: dòng quá ngắn (< 80 chars) trừ khi là heading ##
+        if len(s) < 80 and not s.startswith('##'):
+            continue
+        # Đây là nội dung thực
+        best_start = i
+        break
+
+    return lines[best_start:]
+
+
+def clean_content(raw: str) -> str:
+    lines = raw.splitlines()
+    lines = strip_jina_header(lines)
+    lines = strip_site_navigation(lines)
+    body = "\n".join(lines).strip()
+    # Dọn nhiều dòng trắng liên tiếp
+    body = re.sub(r'\n{3,}', '\n\n', body)
     return fix_images(body)
 
 
 def next_order(output_dir: str) -> int:
-    """Đếm số file .md hiện có + 1 để tính order tiếp theo."""
     path = Path(output_dir)
     if not path.exists():
         return 1
-    md_files = list(path.glob("*.md"))
-    return len(md_files) + 1
+    return len(list(path.glob("*.md"))) + 1
 
 
 def main():
@@ -124,19 +136,14 @@ def main():
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
 
-    # Đọc nội dung từ file
     with open(args.content_file, "r", encoding="utf-8") as f:
         raw = f.read()
 
     title = extract_title(raw)
     body  = clean_content(raw)
-    slug  = slugify(title)[:60]
+    slug  = slugify(title)[:60] or "bai-viet-moi"
     order = next_order(args.output_dir)
 
-    if not slug:
-        slug = "bai-viet-moi"
-
-    # Tạo frontmatter
     frontmatter_lines = [
         "---",
         f'title: "{title}"',
@@ -148,16 +155,12 @@ def main():
     if args.source_label:
         frontmatter_lines.append(f'sourceLabel: "{args.source_label}"')
     frontmatter_lines.append("---")
-    frontmatter = "\n".join(frontmatter_lines)
 
-    markdown = f"{frontmatter}\n\n{body}\n"
+    markdown = "\n".join(frontmatter_lines) + f"\n\n{body}\n"
 
-    # Đảm bảo thư mục tồn tại
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-
     output_path = Path(args.output_dir) / f"{slug}.md"
 
-    # Tránh ghi đè nếu trùng tên
     counter = 1
     while output_path.exists():
         output_path = Path(args.output_dir) / f"{slug}-{counter}.md"
@@ -167,7 +170,6 @@ def main():
         f.write(markdown)
 
     print(f"✓ Tạo file: {output_path}")
-    # Output tên file để workflow dùng
     print(f"OUTPUT_FILE={output_path}")
 
 
