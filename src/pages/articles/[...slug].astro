@@ -43,6 +43,23 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
           Edit
         </a>
       </div>
+      <!-- Nút link bài gốc (chỉ hiện khi có source) -->
+      {entry.data.source && (
+        <a
+          href={entry.data.source}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="source-btn"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Đọc bài gốc{entry.data.sourceLabel ? ` trên ${entry.data.sourceLabel}` : ''}
+        </a>
+      )}
+
       <div class="article-body">
         <Content />
       </div>
@@ -149,6 +166,23 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   }
 
   .edit-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Nút đọc bài gốc */
+  .source-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 6px;
+    padding: 0.4rem 0.85rem;
+    margin-bottom: 1.25rem;
+    transition: opacity 0.15s;
+    font-weight: 500;
+  }
+
+  .source-btn:hover { opacity: 0.85; }
 
   /* ── Dialog popup — căn giữa màn hình ── */
   #topics-dialog {

@@ -8,6 +8,8 @@ const articles = defineCollection({
     category: z.string(),
     categoryOrder: z.number().optional().default(99),
     order: z.number().optional().default(99),
+    source: z.string().url().optional(),        // link bài gốc
+    sourceLabel: z.string().optional(),         // tên nguồn, vd: "ByteByteGo"
   }),
 });
 
