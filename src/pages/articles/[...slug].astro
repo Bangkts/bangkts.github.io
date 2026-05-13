@@ -72,6 +72,18 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
     <p class="del-heading">Xoá bài viết?</p>
     <p class="del-name" id="delete-title"></p>
     <p class="del-sub">Hành động này không thể hoàn tác.</p>
+
+    <!-- Ô nhập token — chỉ hiện khi chưa có token -->
+    <div id="token-section" class="token-section" style="display:none">
+      <label class="token-label">GitHub Token</label>
+      <input type="password" id="inline-token" class="token-input"
+             placeholder="ghp_..." autocomplete="off" />
+      <p class="token-hint">
+        Lấy tại <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a>
+        — tick <strong>repo</strong> + <strong>workflow</strong>
+      </p>
+    </div>
+
     <div id="delete-msg" class="del-msg"></div>
     <div class="del-btns">
       <button id="delete-cancel-btn"  class="del-btn del-btn-cancel">Huỷ</button>
@@ -122,6 +134,9 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   let pendingTitle = '';
   let pendingIsCurrent = false;
 
+  const tokenSection = document.getElementById('token-section');
+  const inlineToken  = document.getElementById('inline-token') as HTMLInputElement | null;
+
   // Gắn sự kiện cho tất cả nút ✕ trong sidebar
   document.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', (e) => {
@@ -133,6 +148,12 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
 
       if (deleteTitle) deleteTitle.textContent = pendingTitle;
       if (deleteMsg)   { deleteMsg.textContent = ''; deleteMsg.className = 'del-msg'; }
+
+      // Hiện ô token nếu chưa có
+      const hasToken = !!localStorage.getItem('ghToken');
+      if (tokenSection) tokenSection.style.display = hasToken ? 'none' : 'block';
+      if (inlineToken)  inlineToken.value = '';
+
       if (deleteDialog) deleteDialog.showModal();
     });
   });
@@ -143,11 +164,19 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   });
 
   deleteConfirmBtn?.addEventListener('click', async () => {
-    const token = localStorage.getItem('ghToken') || '';
+    // Ưu tiên: inline input → localStorage
+    const typedToken = inlineToken?.value.trim() || '';
+    const token = typedToken || localStorage.getItem('ghToken') || '';
+
     if (!token) {
-      showDelMsg('⚠️ Chưa có GitHub Token. Vào /admin → ⚙️ để thêm token.', 'warn');
+      if (tokenSection) tokenSection.style.display = 'block';
+      inlineToken?.focus();
+      showDelMsg('⚠️ Vui lòng nhập GitHub Token bên trên.', 'warn');
       return;
     }
+
+    // Lưu token vào localStorage để lần sau khỏi nhập lại
+    if (typedToken) localStorage.setItem('ghToken', typedToken);
 
     if (deleteConfirmBtn) deleteConfirmBtn.disabled = true;
     showDelMsg('Đang xoá...', 'spin');
@@ -303,6 +332,17 @@ const editUrl = `https://github.com/${REPO}/edit/main/src/content/articles/${ent
   .del-btn-confirm { background: #dc2626; color: #fff; }
   .del-btn-cancel:hover  { background: #e0e0e0; }
   .del-btn-confirm:hover { background: #b91c1c; }
+
+  /* Ô nhập token inline */
+  .token-section { margin-bottom: .85rem; }
+  .token-label   { display: block; font-size: .75rem; font-weight: 600; color: #555; margin-bottom: .3rem; }
+  .token-input   {
+    width: 100%; padding: .4rem .6rem; border: 1px solid #ddd; border-radius: 6px;
+    font-size: .8125rem; font-family: inherit; outline: none;
+  }
+  .token-input:focus { border-color: var(--accent); }
+  .token-hint    { font-size: .72rem; color: #aaa; margin-top: .3rem; }
+  .token-hint a  { color: var(--accent); }
 
   /* Nút đọc bài gốc */
   .source-btn {
