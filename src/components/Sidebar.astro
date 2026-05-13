@@ -94,7 +94,7 @@ function addSectionUrl() {
           })}
         </ul>
 
-        <a href={addUrl} target="_blank" rel="noopener" class="btn-add-topic">
+        <a href={`/admin?category=${encodeURIComponent(category)}|${folder}|${catOrder}`} class="btn-add-topic">
           + Thêm chủ đề
         </a>
       </div>

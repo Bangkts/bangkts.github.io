@@ -125,6 +125,16 @@
 const REPO = 'Bangkts/bangkts.github.io';
 const $ = (id) => document.getElementById(id);
 
+// Đọc category từ URL param (vd: ?category=AI Notes|ai-notes|3)
+const params = new URLSearchParams(location.search);
+const catParam = params.get('category');
+if (catParam) {
+  const sel = $('category');
+  for (const opt of sel.options) {
+    if (opt.value === catParam) { opt.selected = true; break; }
+  }
+}
+
 // Load token
 $('ghToken').value = localStorage.getItem('ghToken') || '';
 $('saveToken').onclick = () => {
