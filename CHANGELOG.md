@@ -5,6 +5,22 @@ Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
+## [2026-05-13] — Cải thiện content pipeline, xoá bài mobile, token inline
+
+### Thêm mới
+- Popup xoá bài có ô nhập **GitHub Token inline** — mobile không cần vào `/admin` để lấy token, nhập ngay tại chỗ và tự lưu vào browser
+- Skill `/end-session` — tự tổng hợp và cập nhật CHANGELOG khi kết thúc phiên
+
+### Sửa lỗi
+- **Content pipeline** 4 tầng hoàn chỉnh cho script `create_article.py`:
+  - `strip_site_navigation`: dùng last-sponsor-line + look-ahead, không nhầm ảnh bài viết là sponsor
+  - `remove_sponsor_blocks`: xoá cả block giữa `* * *` nếu bất kỳ đoạn nào chứa sponsor URL
+  - `truncate_at_comments`: cắt tại `## Comments`, `Leave a comment`...
+  - Xử lý được sponsor nhiều đoạn (CodeRabbit, WorkOS...) không có URL ở đoạn đầu
+- Cập nhật lại nội dung 5 bài viết đã post theo rules mới — không còn sponsor/ads
+
+---
+
 ## [2026-05-13] — Tổ chức .claude/, hoàn thiện tính năng xoá bài
 
 ### Thêm mới
