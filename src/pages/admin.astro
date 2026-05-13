@@ -1,0 +1,521 @@
+---
+// Trang admin — chỉ dùng cá nhân, yêu cầu API keys để hoạt động
+---
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Thêm bài viết</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #d4674a;
+      --border: #e8e8e8;
+      --bg: #fafafa;
+      --font: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: #1a1a1a;
+      font-size: 14px;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.8125rem;
+      color: #888;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+      margin-bottom: 0.9rem;
+    }
+
+    .field { margin-bottom: 0.85rem; }
+
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 0.3rem;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: var(--font);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    textarea { resize: vertical; line-height: 1.6; }
+
+    .row { display: flex; gap: 0.75rem; }
+    .row .field { flex: 1; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-success { background: #16a34a; color: #fff; }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 0.8125rem;
+      color: #666;
+      padding: 0.4rem 0;
+    }
+
+    .status.ok   { color: #16a34a; }
+    .status.err  { color: #dc2626; }
+    .status.spin { color: var(--accent); }
+
+    details { margin-top: 1rem; }
+    summary {
+      cursor: pointer;
+      font-size: 0.8125rem;
+      color: #888;
+      user-select: none;
+      padding: 0.4rem 0;
+    }
+
+    summary:hover { color: #444; }
+
+    details[open] summary { margin-bottom: 0.75rem; }
+
+    .keys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    #previewSection { display: none; }
+
+    @media (max-width: 600px) {
+      .row { flex-direction: column; }
+      .keys-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>✍️ Thêm bài viết mới</h1>
+  <p class="subtitle">Paste link → Claude tóm tắt → lưu thẳng lên GitHub</p>
+
+  <!-- BƯỚC 1: Thông tin bài -->
+  <div class="card">
+    <p class="card-title">Bước 1 — Thông tin bài viết</p>
+
+    <div class="field">
+      <label>URL bài gốc *</label>
+      <input type="url" id="articleUrl" placeholder="https://blog.bytebytego.com/p/..." />
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Tên nguồn</label>
+        <input type="text" id="sourceLabel" value="ByteByteGo" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <input type="text" id="category" value="AI Notes" />
+      </div>
+      <div class="field">
+        <label>Category Order</label>
+        <input type="number" id="categoryOrder" value="3" min="1" style="width:80px" />
+      </div>
+    </div>
+  </div>
+
+  <!-- BƯỚC 2: Nội dung -->
+  <div class="card">
+    <p class="card-title">Bước 2 — Nội dung bài viết</p>
+
+    <div class="btn-row" style="margin-bottom:0.85rem">
+      <button class="btn btn-secondary" id="fetchBtn">
+        🔗 Tự động lấy từ URL
+      </button>
+      <span class="status" id="fetchStatus"></span>
+    </div>
+
+    <div class="field">
+      <label>Hoặc dán nội dung bài viết vào đây</label>
+      <textarea id="articleContent" rows="8"
+        placeholder="Paste toàn bộ nội dung bài viết vào đây nếu tự động lấy không được..."></textarea>
+    </div>
+  </div>
+
+  <!-- BƯỚC 3: Tạo tóm tắt -->
+  <div class="card">
+    <p class="card-title">Bước 3 — Tạo tóm tắt bằng Claude AI</p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="summarizeBtn">
+        ✨ Tạo tóm tắt
+      </button>
+      <span class="status" id="summarizeStatus"></span>
+    </div>
+  </div>
+
+  <!-- BƯỚC 4: Preview + lưu -->
+  <div class="card" id="previewSection">
+    <p class="card-title">Bước 4 — Xem trước & lưu lên GitHub</p>
+
+    <div class="row">
+      <div class="field">
+        <label>Tên file (không dấu)</label>
+        <input type="text" id="filename" placeholder="ten-bai-viet" />
+      </div>
+      <div class="field">
+        <label>Thư mục (folder category)</label>
+        <input type="text" id="folderName" placeholder="ai-notes" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nội dung Markdown (có thể chỉnh sửa)</label>
+      <textarea id="markdownPreview" rows="20" style="font-family:monospace;font-size:0.8125rem"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-success" id="saveBtn">
+        🚀 Lưu lên GitHub
+      </button>
+      <span class="status" id="saveStatus"></span>
+    </div>
+  </div>
+
+  <!-- API Keys -->
+  <details>
+    <summary>⚙️ Cài đặt API Keys (lưu trong browser)</summary>
+    <div class="card">
+      <div class="keys-grid">
+        <div class="field">
+          <label>Anthropic API Key</label>
+          <input type="password" id="anthropicKey" placeholder="sk-ant-..." />
+        </div>
+        <div class="field">
+          <label>GitHub Token (cần quyền repo)</label>
+          <input type="password" id="githubToken" placeholder="ghp_..." />
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="saveKeysBtn" style="margin-top:0.5rem">
+        💾 Lưu keys vào browser
+      </button>
+      <span class="status" id="keysStatus"></span>
+    </div>
+  </details>
+
+</div>
+
+<script>
+  const REPO   = 'Bangkts/bangkts.github.io';
+  const BRANCH = 'main';
+
+  // ── Load saved keys ──────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+
+  function loadKeys() {
+    $('anthropicKey').value = localStorage.getItem('anthropicKey') || '';
+    $('githubToken').value  = localStorage.getItem('githubToken')  || '';
+  }
+
+  $('saveKeysBtn').addEventListener('click', () => {
+    localStorage.setItem('anthropicKey', $('anthropicKey').value.trim());
+    localStorage.setItem('githubToken',  $('githubToken').value.trim());
+    $('keysStatus').textContent = '✓ Đã lưu';
+    $('keysStatus').className   = 'status ok';
+  });
+
+  loadKeys();
+
+  // ── Fetch article via CORS proxy ─────────────────────────────
+  $('fetchBtn').addEventListener('click', async () => {
+    const url = $('articleUrl').value.trim();
+    if (!url) { alert('Vui lòng nhập URL bài viết'); return; }
+
+    $('fetchStatus').textContent = 'Đang tải...';
+    $('fetchStatus').className   = 'status spin';
+    $('fetchBtn').disabled       = true;
+
+    try {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      const res  = await fetch(proxyUrl);
+      const html = await res.text();
+
+      // Lấy text từ HTML — loại bỏ tags
+      const doc  = new DOMParser().parseFromString(html, 'text/html');
+
+      // Thử lấy nội dung chính (article / main / body)
+      const main = doc.querySelector('article, main, .post-content, .body')
+                || doc.body;
+
+      // Xoá nav, header, footer, script, style
+      ['nav','header','footer','script','style','aside'].forEach(tag => {
+        main.querySelectorAll(tag).forEach(el => el.remove());
+      });
+
+      const text = main.innerText || main.textContent || '';
+      const cleaned = text.replace(/\n{3,}/g, '\n\n').trim();
+
+      if (cleaned.length < 200) {
+        throw new Error('Nội dung quá ngắn — site có thể yêu cầu đăng nhập');
+      }
+
+      $('articleContent').value  = cleaned.slice(0, 15000); // giới hạn token
+      $('fetchStatus').textContent = `✓ Lấy được ${cleaned.length.toLocaleString()} ký tự`;
+      $('fetchStatus').className   = 'status ok';
+    } catch (e) {
+      $('fetchStatus').textContent = `✗ ${e.message} — hãy dán nội dung thủ công`;
+      $('fetchStatus').className   = 'status err';
+    } finally {
+      $('fetchBtn').disabled = false;
+    }
+  });
+
+  // ── Summarize with Claude ─────────────────────────────────────
+  $('summarizeBtn').addEventListener('click', async () => {
+    const apiKey  = $('anthropicKey').value.trim() || localStorage.getItem('anthropicKey');
+    const url     = $('articleUrl').value.trim();
+    const label   = $('sourceLabel').value.trim() || 'Nguồn gốc';
+    const cat     = $('category').value.trim()    || 'AI Notes';
+    const catOrd  = $('categoryOrder').value      || '99';
+    const content = $('articleContent').value.trim();
+
+    if (!apiKey)  { alert('Vui lòng nhập Anthropic API Key trong phần ⚙️ Cài đặt'); return; }
+    if (!content) { alert('Vui lòng có nội dung bài viết (tự động lấy hoặc dán tay)'); return; }
+
+    $('summarizeStatus').textContent = 'Claude đang tóm tắt...';
+    $('summarizeStatus').className   = 'status spin';
+    $('summarizeBtn').disabled       = true;
+
+    const prompt = `Bạn là trợ lý giúp tóm tắt bài viết kỹ thuật thành ghi chú học tập bằng tiếng Việt.
+
+Hãy tóm tắt bài viết sau và tạo file Markdown theo format Astro Content Collections.
+
+YÊU CẦU FRONTMATTER:
+- title: tiêu đề tóm tắt bằng tiếng Việt (ngắn gọn, súc tích)
+- category: "${cat}"
+- categoryOrder: ${catOrd}
+- order: 1
+- source: "${url}"
+- sourceLabel: "${label}"
+
+YÊU CẦU NỘI DUNG:
+- Dòng đầu: *Đây là tóm tắt và ghi chú cá nhân từ bài viết gốc trên ${label}.*
+- Tóm tắt các ý chính bằng tiếng Việt với heading ##, bullet points
+- Giữ các thuật ngữ kỹ thuật bằng tiếng Anh
+- Thêm ## Bài học rút ra hoặc ghi chú cá nhân ở cuối
+- KHÔNG dịch toàn bộ — hãy diễn giải bằng lời của mình
+
+Chỉ trả về nội dung Markdown (bao gồm frontmatter ---, không kèm giải thích).
+
+BÀI VIẾT GỐC:
+${content.slice(0, 12000)}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-allow-browser': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2048,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || res.statusText);
+      }
+
+      const data     = await res.json();
+      const markdown = data.content[0].text;
+
+      // Gợi ý tên file từ title trong frontmatter
+      const titleMatch = markdown.match(/^title:\s*["']?(.+?)["']?\s*$/m);
+      const titleText  = titleMatch ? titleMatch[1] : 'bai-viet-moi';
+      $('filename').value  = toSlug(titleText).slice(0, 50);
+      $('folderName').value = toSlug(cat);
+
+      $('markdownPreview').value = markdown;
+      $('previewSection').style.display = 'block';
+      $('previewSection').scrollIntoView({ behavior: 'smooth' });
+
+      $('summarizeStatus').textContent = '✓ Tóm tắt xong! Kiểm tra và chỉnh sửa bên dưới.';
+      $('summarizeStatus').className   = 'status ok';
+    } catch (e) {
+      $('summarizeStatus').textContent = `✗ Lỗi: ${e.message}`;
+      $('summarizeStatus').className   = 'status err';
+    } finally {
+      $('summarizeBtn').disabled = false;
+    }
+  });
+
+  // ── Save to GitHub ────────────────────────────────────────────
+  $('saveBtn').addEventListener('click', async () => {
+    const token    = $('githubToken').value.trim() || localStorage.getItem('githubToken');
+    const folder   = $('folderName').value.trim();
+    const filename = $('filename').value.trim();
+    const content  = $('markdownPreview').value;
+
+    if (!token)    { alert('Vui lòng nhập GitHub Token trong phần ⚙️ Cài đặt'); return; }
+    if (!folder)   { alert('Vui lòng nhập tên thư mục (folder)'); return; }
+    if (!filename) { alert('Vui lòng nhập tên file'); return; }
+    if (!content)  { alert('Không có nội dung Markdown để lưu'); return; }
+
+    const path = `src/content/articles/${folder}/${filename}.md`;
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    $('saveStatus').textContent = 'Đang lưu lên GitHub...';
+    $('saveStatus').className   = 'status spin';
+    $('saveBtn').disabled       = true;
+
+    try {
+      // Kiểm tra file đã tồn tại chưa (để lấy sha nếu cần update)
+      let sha;
+      const checkRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${path}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (checkRes.ok) {
+        const existing = await checkRes.json();
+        sha = existing.sha;
+      }
+
+      const body = {
+        message: `feat: thêm bài "${filename}" vào ${folder}`,
+        content: encoded,
+        branch: BRANCH,
+        ...(sha ? { sha } : {}),
+      };
+
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${path}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || res.statusText);
+      }
+
+      $('saveStatus').innerHTML =
+        `✓ Đã lưu! GitHub Actions đang deploy (~2 phút). ` +
+        `<a href="https://bangkts.github.io/articles/${folder}/${filename}" ` +
+        `target="_blank" style="color:var(--accent)">Xem bài →</a>`;
+      $('saveStatus').className = 'status ok';
+
+      // Reset form cho bài tiếp theo
+      setTimeout(() => {
+        if (confirm('Lưu thành công! Bạn có muốn thêm bài tiếp theo không?')) {
+          $('articleUrl').value      = '';
+          $('articleContent').value  = '';
+          $('markdownPreview').value = '';
+          $('previewSection').style.display = 'none';
+          $('summarizeStatus').textContent  = '';
+          $('fetchStatus').textContent      = '';
+          $('saveStatus').textContent       = '';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 1500);
+
+    } catch (e) {
+      $('saveStatus').textContent = `✗ Lỗi: ${e.message}`;
+      $('saveStatus').className   = 'status err';
+    } finally {
+      $('saveBtn').disabled = false;
+    }
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function toSlug(text) {
+    return text
+      .toLowerCase()
+      .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+      .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+      .replace(/[ìíịỉĩ]/g, 'i')
+      .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+      .replace(/[ùúụủũưừứựửữ]/g, 'u')
+      .replace(/[ỳýỵỷỹ]/g, 'y')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+</script>
+</body>
+</html>
