@@ -1,46 +1,79 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 interface Props { currentSlug?: string; }
 const { currentSlug } = Astro.props;
 
+const REPO = 'Bangkts/bangkts.github.io';
+const BASE  = `https://github.com/${REPO}`;
+
+type Article = CollectionEntry<'articles'>;
+type Group   = { catOrder: number; folder: string; articles: Article[] };
+
 const allArticles = await getCollection('articles');
 
-const grouped: Record<string, { catOrder: number; articles: typeof allArticles }> = {};
+const grouped: Record<string, Group> = {};
 for (const article of allArticles) {
-  const cat = article.data.category;
+  const cat    = article.data.category;
+  const folder = article.id.split('/')[0];
   if (!grouped[cat]) {
-    grouped[cat] = { catOrder: article.data.categoryOrder ?? 99, articles: [] };
+    grouped[cat] = { catOrder: article.data.categoryOrder ?? 99, folder, articles: [] };
   }
   grouped[cat].articles.push(article);
 }
 
 for (const cat of Object.values(grouped)) {
-  cat.articles.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+  cat.articles.sort((a: Article, b: Article) => (a.data.order ?? 99) - (b.data.order ?? 99));
 }
 
-const sortedCategories = Object.entries(grouped).sort((a, b) => a[1].catOrder - b[1].catOrder);
+const sortedCategories: [string, Group][] = Object.entries(grouped)
+  .sort(([, a], [, b]) => a.catOrder - b.catOrder);
 ---
 
 <nav class="sidebar">
-  {sortedCategories.map(([category, { articles }]) => (
+  {sortedCategories.map(([category, { folder, articles }]) => (
     <div class="group">
       <p class="cat-title">{category}</p>
       <ul>
-        {articles.map((article) => {
-          const slug = article.id.replace(/\.md$/, '');
-          const isActive = currentSlug === article.id;
+        {articles.map((article: Article) => {
+          const slug      = article.id.replace(/\.md$/, '');
+          const isActive  = currentSlug === article.id;
+          const deleteUrl = `${BASE}/delete/main/src/content/articles/${article.id}.md`;
           return (
-            <li>
+            <li class="article-row">
               <a href={`/articles/${slug}`} class:list={['link', { active: isActive }]}>
                 {article.data.title}
               </a>
+              <a
+                href={deleteUrl}
+                target="_blank"
+                rel="noopener"
+                class="btn-delete"
+                title="Xoá bài viết này"
+                aria-label="Xoá"
+              >✕</a>
             </li>
           );
         })}
       </ul>
+
+      <a
+        href={`${BASE}/new/main/src/content/articles/${folder}`}
+        target="_blank"
+        rel="noopener"
+        class="btn-add-topic"
+        title="Thêm bài viết mới vào section này"
+      >+ Thêm chủ đề</a>
     </div>
   ))}
+
+  <a
+    href={`${BASE}/new/main/src/content/articles`}
+    target="_blank"
+    rel="noopener"
+    class="btn-add-section"
+    title="Tạo section mới (nhập tên-section/ten-bai.md)"
+  >+ Thêm Section</a>
 </nav>
 
 <style>
@@ -49,28 +82,69 @@ const sortedCategories = Object.entries(grouped).sort((a, b) => a[1].catOrder - 
   .group { margin-bottom: 1.25rem; }
 
   .cat-title {
-    font-size: 0.9375rem;   /* 15px */
+    font-size: 0.8125rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
     letter-spacing: 0.005em;
   }
 
   ul { list-style: none; }
 
+  .article-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
   .link {
+    flex: 1;
     display: block;
-    padding: 0.18rem 0;
-    font-size: 0.875rem;    /* 14px */
+    padding: 0.2rem 0;
+    font-size: 0.875rem;
     color: var(--text-muted);
     line-height: 1.45;
     transition: color 0.1s;
+    min-width: 0;
   }
 
-  .link:hover { color: var(--text); }
+  .link:hover  { color: var(--text); }
+  .link.active { color: var(--text); font-weight: 500; }
 
-  .link.active {
-    color: var(--text);
-    font-weight: 500;
+  .btn-delete {
+    opacity: 0;
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    color: #bbb;
+    padding: 0.3rem 0.2rem;
+    line-height: 1;
+    transition: opacity 0.15s, color 0.15s;
+    cursor: pointer;
   }
+
+  .article-row:hover .btn-delete { opacity: 1; }
+  .btn-delete:hover { color: #e53e3e; }
+
+  .btn-add-topic {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: #bbb;
+    transition: color 0.15s;
+    padding: 0.15rem 0;
+  }
+
+  .btn-add-topic:hover { color: var(--accent); }
+
+  .btn-add-section {
+    display: block;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e0e0e0;
+    font-size: 0.75rem;
+    color: #bbb;
+    transition: color 0.15s;
+  }
+
+  .btn-add-section:hover { color: var(--accent); }
 </style>
