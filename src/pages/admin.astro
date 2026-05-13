@@ -1,4 +1,19 @@
 ---
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('articles');
+
+// Lấy danh sách category + folder + catOrder từ content thực tế
+const catMap: Record<string, { folder: string; catOrder: number }> = {};
+for (const a of allArticles) {
+  const cat    = a.data.category;
+  const folder = a.id.split('/')[0];
+  const order  = a.data.categoryOrder ?? 99;
+  if (!catMap[cat]) catMap[cat] = { folder, catOrder: order };
+}
+
+const categories = Object.entries(catMap)
+  .sort((a, b) => a[1].catOrder - b[1].catOrder);
 ---
 <!doctype html>
 <html lang="vi">
@@ -69,9 +84,9 @@
       <div class="field">
         <label>Category</label>
         <select id="category">
-          <option value="AI Notes|ai-notes|3">AI Notes</option>
-          <option value="System Design|system-design|1">System Design</option>
-          <option value="Art of Programming Computer|programming|2">Programming</option>
+          {categories.map(([cat, { folder, catOrder }]) => (
+            <option value={`${cat}|${folder}|${catOrder}`}>{cat}</option>
+          ))}
         </select>
       </div>
       <div class="field">

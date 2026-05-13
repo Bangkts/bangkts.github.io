@@ -55,26 +55,37 @@ def extract_title(content: str) -> str:
     return "Bài viết mới"
 
 
+def fix_images(content: str) -> str:
+    """
+    Đảm bảo tất cả ảnh đều ở dạng markdown chuẩn.
+    - Giữ nguyên: ![alt](url)
+    - Convert HTML: <img src="url"> → ![](url)
+    - Bỏ ảnh data:base64 (quá nặng, không cần thiết)
+    """
+    # Convert <img src="..."> → ![](...)
+    content = re.sub(
+        r'<img[^>]+src=["\']([^"\']+)["\'][^>]*(?:alt=["\']([^"\']*)["\'])?[^>]*/?>',
+        lambda m: f'![]({m.group(1)})',
+        content,
+        flags=re.IGNORECASE,
+    )
+    # Bỏ ảnh data:base64
+    content = re.sub(r'!\[[^\]]*\]\(data:[^)]+\)', '', content)
+    return content
+
+
 def clean_content(content: str) -> str:
     """Bỏ phần header metadata của r.jina.ai, giữ nội dung bài."""
     lines = content.splitlines()
-    # Tìm dòng trống đầu tiên sau phần header (Title/URL/...)
-    # Header thường có dạng: Title: ...\nURL Source: ...\nPublished Time: ...\n\n
-    in_header = True
+    # Header của jina có dạng: Title: ...\nURL Source: ...\n...\n\n
     header_end = 0
     for i, line in enumerate(lines):
-        stripped = line.strip()
-        if in_header:
-            # Các dòng header có pattern "Key: Value" hoặc trống
-            if stripped == "" and i > 0:
-                # Kiểm tra xem đã qua header chưa
-                header_end = i + 1
-                in_header = False
-                break
+        if line.strip() == "" and i > 0:
+            header_end = i + 1
+            break
 
-    if header_end > 0:
-        return "\n".join(lines[header_end:]).strip()
-    return content.strip()
+    body = "\n".join(lines[header_end:]).strip() if header_end > 0 else content.strip()
+    return fix_images(body)
 
 
 def next_order(output_dir: str) -> int:
