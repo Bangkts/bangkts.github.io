@@ -110,6 +110,19 @@ src/
     └── create_article.py          # Python script: jina output → .md chuẩn Astro
 ```
 
+## Tính năng quản lý nội dung
+
+### Xoá bài viết
+- Nút ✕ trong sidebar: ẩn khi không hover (desktop), luôn hiện trên mobile
+- Click ✕ → popup xác nhận → GitHub API xoá file + trigger deploy
+- Cần GitHub Token lưu trong `/admin` ⚙️
+- Nếu xoá bài đang xem → tự redirect về trang chủ sau 2 giây
+
+### Sửa bài viết
+- Nút **Edit** góc phải tiêu đề → mở GitHub editor file `.md`
+- URL format: `github.com/Bangkts/bangkts.github.io/edit/main/src/content/articles/<id>.md`
+- Lưu ý: `entry.id` trong Astro v6 glob loader **không có** `.md` → phải thêm thủ công
+
 ## Lưu ý kỹ thuật
 
 - File `.md` phải có extension `.md` và tên không dấu, dùng dấu gạch ngang
@@ -117,3 +130,7 @@ src/
 - `source: ""` (chuỗi rỗng) sẽ lỗi schema — bỏ field đó nếu không có URL
 - Sidebar width: 292px (CSS var `--sidebar-width`)
 - Font sidebar links: 12px
+- **`GITHUB_TOKEN` push KHÔNG trigger `push` event** → `add-article.yml` phải gọi `workflow_dispatch` API sau commit
+- jina.ai trả về navigation Substack trước bài → `create_article.py` skip bằng heuristic 150 chars + NAV_PATTERN
+- Dropdown category trong admin là **dynamic** — lấy từ `getCollection('articles')` lúc build
+- Mobile: sidebar ẩn, dùng popup dialog (hamburger ☰) — nút ✕ xoá luôn hiện trên mobile
