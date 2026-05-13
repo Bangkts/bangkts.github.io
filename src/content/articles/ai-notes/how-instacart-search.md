@@ -1,3 +1,10 @@
+---
+title: "How Instacart Built a Search for Billions of Products"
+category: "AI Notes"
+categoryOrder: 3
+order: 3
+sourceLabel: "ByteByteGo"
+---
 In 2021, the Instacart search team faced a problem they could trace to their users’ typing habits. One group of shoppers searched for items like “pesto pasta sauce 8oz” and expected the exact product to appear. Another group searched for things like “healthy foods” and expected the system to understand what they meant. These are genuinely different problems. The first asks for precise keyword matching. The second asks the system to grasp intent from vague language.
 
 Solving both required two different retrieval systems running in parallel. One handled keyword search. The other handled semantic search, where meaning rather than exact words drives the result. The setup worked, and for a while it worked well. But maintaining two systems in sync, blending their results into a single ranked list, and keeping both fast enough for millions of daily queries became a tax that grew heavier each quarter.
