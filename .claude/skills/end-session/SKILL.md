@@ -24,7 +24,7 @@ git log --oneline -20
 Thêm section mới vào **đầu file** (sau dòng tiêu đề), theo format:
 
 ```markdown
-## [YYYY-MM-DD] — mô tả ngắn phiên làm việc
+## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn phiên làm việc
 
 ### Thêm mới
 - ...
@@ -41,7 +41,7 @@ Chỉ ghi những thay đổi **có ý nghĩa** — bỏ qua commit "chore:", "d
 ## Bước 3 — Commit CHANGELOG
 ```bash
 git add CHANGELOG.md
-git commit -m "docs: cập nhật CHANGELOG phiên $(date +%Y-%m-%d)"
+git commit -m "docs: cập nhật CHANGELOG phiên $(date '+%Y-%m-%d %H:%M:%S')"
 git push
 ```
 

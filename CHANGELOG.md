@@ -1,11 +1,11 @@
 # Changelog
 
 Tất cả thay đổi đáng chú ý của dự án được ghi lại tại đây.
-Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
+Format: `## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
-## [2026-05-13] — Cải thiện content pipeline, xoá bài mobile, token inline
+## [2026-05-13 15:26:05] — Cải thiện content pipeline, xoá bài mobile, token inline
 
 ### Thêm mới
 - Popup xoá bài có ô nhập **GitHub Token inline** — mobile không cần vào `/admin` để lấy token, nhập ngay tại chỗ và tự lưu vào browser
@@ -21,7 +21,7 @@ Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
-## [2026-05-13] — Tổ chức .claude/, hoàn thiện tính năng xoá bài
+## [2026-05-13 14:03:00] — Tổ chức .claude/, hoàn thiện tính năng xoá bài
 
 ### Thêm mới
 - `.claude/rules/astro-conventions.md` — quy tắc Astro, path-scoped cho `.md` và `.astro`
@@ -49,7 +49,7 @@ Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
-## [2026-05-13] — GitHub Actions workflow thêm bài tự động
+## [2026-05-13 11:00:00] — GitHub Actions workflow thêm bài tự động
 
 ### Thêm mới
 - `.github/workflows/add-article.yml` — workflow nhận URL, fetch qua r.jina.ai, tạo .md, commit, **trigger deploy**
@@ -66,7 +66,7 @@ Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
-## [2026-05-13] — Responsive mobile, tối ưu layout
+## [2026-05-13 09:00:00] — Responsive mobile, tối ưu layout
 
 ### Thêm mới
 - Mobile layout: sidebar ẩn → hamburger ☰ (vòng tròn) trong social links → popup `<dialog>` danh sách chủ đề
@@ -80,7 +80,7 @@ Format: `## [ngày] — mô tả ngắn`, theo sau là danh sách thay đổi.
 
 ---
 
-## [2026-05-13] — Khởi tạo dự án
+## [2026-05-13 08:00:00] — Khởi tạo dự án
 
 ### Thêm mới
 - Dự án Astro 6 với GitHub Pages
