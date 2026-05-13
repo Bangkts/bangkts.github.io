@@ -1,5 +1,4 @@
 ---
-// Trang admin — chỉ dùng cá nhân, yêu cầu API keys để hoạt động
 ---
 <!doctype html>
 <html lang="vi">
@@ -9,168 +8,55 @@
   <title>Admin — Thêm bài viết</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --accent: #d4674a;
-      --border: #e8e8e8;
-      --bg: #fafafa;
-      --font: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    :root { --accent: #d4674a; --border: #e8e8e8; --font: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+    body { font-family: var(--font); background: #fafafa; color: #1a1a1a; font-size: 14px; padding: 2rem 1rem; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .sub { font-size: 0.8rem; color: #888; margin-bottom: 2rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+    .step { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #aaa; margin-bottom: .9rem; }
+    .field { margin-bottom: .8rem; }
+    label { display: block; font-size: .8125rem; font-weight: 600; color: #444; margin-bottom: .3rem; }
+    input[type=text], input[type=url], input[type=password], input[type=number], textarea, select {
+      width: 100%; padding: .45rem .7rem; border: 1px solid var(--border); border-radius: 6px;
+      font-size: .875rem; font-family: var(--font); background: #fff; outline: none; transition: border-color .15s;
     }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: #1a1a1a;
-      font-size: 14px;
-      padding: 2rem 1rem;
-    }
-
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .subtitle {
-      font-size: 0.8125rem;
-      color: #888;
-      margin-bottom: 2rem;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    .card-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #999;
-      margin-bottom: 0.9rem;
-    }
-
-    .field { margin-bottom: 0.85rem; }
-
-    label {
-      display: block;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: #444;
-      margin-bottom: 0.3rem;
-    }
-
-    input[type="text"],
-    input[type="url"],
-    input[type="password"],
-    input[type="number"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 0.5rem 0.7rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-family: var(--font);
-      background: #fff;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-    }
-
+    input:focus, textarea:focus { border-color: var(--accent); }
     textarea { resize: vertical; line-height: 1.6; }
-
-    .row { display: flex; gap: 0.75rem; }
+    .row { display: flex; gap: .75rem; }
     .row .field { flex: 1; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1.1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      font-family: var(--font);
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s;
-    }
-
-    .btn:hover { opacity: 0.85; }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-secondary { background: #f0f0f0; color: #333; }
-    .btn-success { background: #16a34a; color: #fff; }
-
-    .btn-row {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .status {
-      font-size: 0.8125rem;
-      color: #666;
-      padding: 0.4rem 0;
-    }
-
-    .status.ok   { color: #16a34a; }
-    .status.err  { color: #dc2626; }
-    .status.spin { color: var(--accent); }
-
-    details { margin-top: 1rem; }
-    summary {
-      cursor: pointer;
-      font-size: 0.8125rem;
-      color: #888;
-      user-select: none;
-      padding: 0.4rem 0;
-    }
-
-    summary:hover { color: #444; }
-
-    details[open] summary { margin-bottom: 0.75rem; }
-
-    .keys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-    #previewSection { display: none; }
-
-    @media (max-width: 600px) {
-      .row { flex-direction: column; }
-      .keys-grid { grid-template-columns: 1fr; }
-    }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.1rem; border-radius: 6px;
+      font-size: .875rem; font-weight: 600; font-family: var(--font); cursor: pointer; border: none; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-p { background: var(--accent); color: #fff; }
+    .btn-s { background: #f0f0f0; color: #333; }
+    .btn-g { background: #16a34a; color: #fff; }
+    .brow { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+    .msg { font-size: .8rem; padding: .3rem 0; }
+    .ok  { color: #16a34a; }
+    .err { color: #dc2626; }
+    .spin { color: var(--accent); }
+    details { margin-top: .75rem; }
+    summary { cursor: pointer; font-size: .8rem; color: #888; user-select: none; padding: .4rem 0; }
+    summary:hover { color: #333; }
+    details[open] summary { margin-bottom: .75rem; }
+    #preview-card { display: none; }
+    @media(max-width:600px){ .row { flex-direction: column; } }
   </style>
 </head>
 <body>
-<div class="container">
-
+<div class="wrap">
   <h1>✍️ Thêm bài viết mới</h1>
-  <p class="subtitle">Paste link → Claude tóm tắt → lưu thẳng lên GitHub</p>
+  <p class="sub">Paste link → AI tóm tắt → lưu thẳng lên GitHub</p>
 
-  <!-- BƯỚC 1: Thông tin bài -->
+  <!-- Bước 1 -->
   <div class="card">
-    <p class="card-title">Bước 1 — Thông tin bài viết</p>
-
+    <p class="step">Bước 1 — Thông tin bài viết</p>
     <div class="field">
       <label>URL bài gốc *</label>
-      <input type="url" id="articleUrl" placeholder="https://blog.bytebytego.com/p/..." />
+      <input type="url" id="url" placeholder="https://blog.bytebytego.com/p/..." />
     </div>
-
     <div class="row">
       <div class="field">
         <label>Tên nguồn</label>
@@ -180,68 +66,55 @@
         <label>Category</label>
         <input type="text" id="category" value="AI Notes" />
       </div>
-      <div class="field">
-        <label>Category Order</label>
-        <input type="number" id="categoryOrder" value="3" min="1" style="width:80px" />
+      <div class="field" style="max-width:90px">
+        <label>Order</label>
+        <input type="number" id="catOrder" value="3" min="1" />
       </div>
     </div>
   </div>
 
-  <!-- BƯỚC 2: Nội dung -->
+  <!-- Bước 2 -->
   <div class="card">
-    <p class="card-title">Bước 2 — Nội dung bài viết</p>
-
-    <div class="btn-row" style="margin-bottom:0.85rem">
-      <button class="btn btn-secondary" id="fetchBtn">
-        🔗 Tự động lấy từ URL
-      </button>
-      <span class="status" id="fetchStatus"></span>
+    <p class="step">Bước 2 — Nội dung bài viết</p>
+    <div class="brow" style="margin-bottom:.85rem">
+      <button class="btn btn-s" id="fetchBtn">🔗 Tự động lấy từ URL</button>
+      <span class="msg" id="fetchMsg"></span>
     </div>
-
     <div class="field">
-      <label>Hoặc dán nội dung bài viết vào đây</label>
-      <textarea id="articleContent" rows="8"
-        placeholder="Paste toàn bộ nội dung bài viết vào đây nếu tự động lấy không được..."></textarea>
+      <label>Hoặc dán nội dung bài vào đây</label>
+      <textarea id="content" rows="8" placeholder="Paste nội dung bài viết nếu tự động lấy không được..."></textarea>
     </div>
   </div>
 
-  <!-- BƯỚC 3: Tạo tóm tắt -->
+  <!-- Bước 3 -->
   <div class="card">
-    <p class="card-title">Bước 3 — Tạo tóm tắt bằng Gemini AI (miễn phí)</p>
-
-    <div class="btn-row">
-      <button class="btn btn-primary" id="summarizeBtn">
-        ✨ Tạo tóm tắt
-      </button>
-      <span class="status" id="summarizeStatus"></span>
+    <p class="step">Bước 3 — Tạo tóm tắt bằng OpenAI</p>
+    <div class="brow">
+      <button class="btn btn-p" id="summarizeBtn">✨ Tạo tóm tắt</button>
+      <span class="msg" id="summarizeMsg"></span>
     </div>
   </div>
 
-  <!-- BƯỚC 4: Preview + lưu -->
-  <div class="card" id="previewSection">
-    <p class="card-title">Bước 4 — Xem trước & lưu lên GitHub</p>
-
-    <div class="row">
+  <!-- Bước 4 -->
+  <div class="card" id="preview-card">
+    <p class="step">Bước 4 — Xem trước &amp; lưu lên GitHub</p>
+    <div class="row" style="margin-bottom:.75rem">
       <div class="field">
         <label>Tên file (không dấu)</label>
         <input type="text" id="filename" placeholder="ten-bai-viet" />
       </div>
       <div class="field">
-        <label>Thư mục (folder category)</label>
-        <input type="text" id="folderName" placeholder="ai-notes" />
+        <label>Thư mục category</label>
+        <input type="text" id="folder" placeholder="ai-notes" />
       </div>
     </div>
-
     <div class="field">
-      <label>Nội dung Markdown (có thể chỉnh sửa)</label>
-      <textarea id="markdownPreview" rows="20" style="font-family:monospace;font-size:0.8125rem"></textarea>
+      <label>Markdown (có thể chỉnh sửa)</label>
+      <textarea id="md" rows="20" style="font-family:monospace;font-size:.8rem"></textarea>
     </div>
-
-    <div class="btn-row">
-      <button class="btn btn-success" id="saveBtn">
-        🚀 Lưu lên GitHub
-      </button>
-      <span class="status" id="saveStatus"></span>
+    <div class="brow">
+      <button class="btn btn-g" id="saveBtn">🚀 Lưu lên GitHub</button>
+      <span class="msg" id="saveMsg"></span>
     </div>
   </div>
 
@@ -249,271 +122,196 @@
   <details>
     <summary>⚙️ Cài đặt API Keys (lưu trong browser)</summary>
     <div class="card">
-      <div class="keys-grid">
+      <div class="row">
         <div class="field">
-          <label>Gemini API Key (miễn phí)</label>
-          <input type="password" id="geminiKey" placeholder="AIza..." />
+          <label>OpenAI API Key</label>
+          <input type="password" id="openaiKey" placeholder="sk-..." />
         </div>
         <div class="field">
-          <label>GitHub Token (cần quyền repo)</label>
-          <input type="password" id="githubToken" placeholder="ghp_..." />
+          <label>GitHub Token (quyền repo + workflow)</label>
+          <input type="password" id="ghToken" placeholder="ghp_..." />
         </div>
       </div>
-      <button class="btn btn-secondary" id="saveKeysBtn" style="margin-top:0.5rem">
-        💾 Lưu keys vào browser
-      </button>
-      <span class="status" id="keysStatus"></span>
+      <div class="brow" style="margin-top:.5rem">
+        <button class="btn btn-s" id="saveKeys">💾 Lưu keys</button>
+        <span class="msg" id="keysMsg"></span>
+      </div>
     </div>
   </details>
-
 </div>
 
 <script>
-  const REPO   = 'Bangkts/bangkts.github.io';
-  const BRANCH = 'main';
+// @ts-nocheck
+const REPO = 'Bangkts/bangkts.github.io';
+const $ = (id) => document.getElementById(id);
 
-  // ── Load saved keys ──────────────────────────────────────────
-  const $ = (id) => document.getElementById(id);
+// ── Keys ──────────────────────────────────────────────────────
+function loadKeys() {
+  $('openaiKey').value = localStorage.getItem('openaiKey') || '';
+  $('ghToken').value   = localStorage.getItem('ghToken')   || '';
+}
+$('saveKeys').onclick = () => {
+  localStorage.setItem('openaiKey', $('openaiKey').value.trim());
+  localStorage.setItem('ghToken',   $('ghToken').value.trim());
+  setMsg('keysMsg', '✓ Đã lưu', 'ok');
+};
+loadKeys();
 
-  function loadKeys() {
-    $('geminiKey').value   = localStorage.getItem('geminiKey')   || '';
-    $('githubToken').value = localStorage.getItem('githubToken') || '';
+// ── Fetch article ─────────────────────────────────────────────
+$('fetchBtn').onclick = async () => {
+  const url = $('url').value.trim();
+  if (!url) { alert('Nhập URL bài viết trước'); return; }
+  setMsg('fetchMsg', 'Đang tải...', 'spin');
+  $('fetchBtn').disabled = true;
+  try {
+    const res  = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+    const html = await res.text();
+    const doc  = new DOMParser().parseFromString(html, 'text/html');
+    ['nav','header','footer','script','style','aside'].forEach(t => doc.querySelectorAll(t).forEach(e => e.remove()));
+    const main = doc.querySelector('article, main, .post-content, .body') || doc.body;
+    const text = (main.innerText || main.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+    if (text.length < 200) throw new Error('Nội dung quá ngắn — site có thể yêu cầu đăng nhập');
+    $('content').value = text.slice(0, 15000);
+    setMsg('fetchMsg', `✓ Lấy được ${text.length.toLocaleString()} ký tự`, 'ok');
+  } catch(e) {
+    setMsg('fetchMsg', `✗ ${e.message} — hãy dán tay`, 'err');
   }
+  $('fetchBtn').disabled = false;
+};
 
-  $('saveKeysBtn').addEventListener('click', () => {
-    localStorage.setItem('geminiKey',   $('geminiKey').value.trim());
-    localStorage.setItem('githubToken', $('githubToken').value.trim());
-    $('keysStatus').textContent = '✓ Đã lưu';
-    $('keysStatus').className   = 'status ok';
-  });
+// ── Summarize ─────────────────────────────────────────────────
+$('summarizeBtn').onclick = async () => {
+  const key     = $('openaiKey').value.trim() || localStorage.getItem('openaiKey');
+  const url     = $('url').value.trim();
+  const label   = $('sourceLabel').value.trim() || 'Nguồn';
+  const cat     = $('category').value.trim()    || 'AI Notes';
+  const catOrd  = $('catOrder').value           || '99';
+  const content = $('content').value.trim();
 
-  loadKeys();
+  if (!key)     { alert('Nhập OpenAI API Key trong ⚙️ Cài đặt'); return; }
+  if (!content) { alert('Cần có nội dung bài viết'); return; }
 
-  // ── Fetch article via CORS proxy ─────────────────────────────
-  $('fetchBtn').addEventListener('click', async () => {
-    const url = $('articleUrl').value.trim();
-    if (!url) { alert('Vui lòng nhập URL bài viết'); return; }
+  setMsg('summarizeMsg', 'Đang tóm tắt...', 'spin');
+  $('summarizeBtn').disabled = true;
 
-    $('fetchStatus').textContent = 'Đang tải...';
-    $('fetchStatus').className   = 'status spin';
-    $('fetchBtn').disabled       = true;
+  const prompt =
+`Bạn là trợ lý tóm tắt bài kỹ thuật thành ghi chú học tập bằng tiếng Việt.
 
-    try {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-      const res  = await fetch(proxyUrl);
-      const html = await res.text();
-
-      // Lấy text từ HTML — loại bỏ tags
-      const doc  = new DOMParser().parseFromString(html, 'text/html');
-
-      // Thử lấy nội dung chính (article / main / body)
-      const main = doc.querySelector('article, main, .post-content, .body')
-                || doc.body;
-
-      // Xoá nav, header, footer, script, style
-      ['nav','header','footer','script','style','aside'].forEach(tag => {
-        main.querySelectorAll(tag).forEach(el => el.remove());
-      });
-
-      const text = main.innerText || main.textContent || '';
-      const cleaned = text.replace(/\n{3,}/g, '\n\n').trim();
-
-      if (cleaned.length < 200) {
-        throw new Error('Nội dung quá ngắn — site có thể yêu cầu đăng nhập');
-      }
-
-      $('articleContent').value  = cleaned.slice(0, 15000); // giới hạn token
-      $('fetchStatus').textContent = `✓ Lấy được ${cleaned.length.toLocaleString()} ký tự`;
-      $('fetchStatus').className   = 'status ok';
-    } catch (e) {
-      $('fetchStatus').textContent = `✗ ${e.message} — hãy dán nội dung thủ công`;
-      $('fetchStatus').className   = 'status err';
-    } finally {
-      $('fetchBtn').disabled = false;
-    }
-  });
-
-  // ── Summarize with Gemini ────────────────────────────────────
-  $('summarizeBtn').addEventListener('click', async () => {
-    const apiKey  = $('geminiKey').value.trim() || localStorage.getItem('geminiKey');
-    const url     = $('articleUrl').value.trim();
-    const label   = $('sourceLabel').value.trim() || 'Nguồn gốc';
-    const cat     = $('category').value.trim()    || 'AI Notes';
-    const catOrd  = $('categoryOrder').value      || '99';
-    const content = $('articleContent').value.trim();
-
-    if (!apiKey)  { alert('Vui lòng nhập Gemini API Key trong phần ⚙️ Cài đặt'); return; }
-    if (!content) { alert('Vui lòng có nội dung bài viết (tự động lấy hoặc dán tay)'); return; }
-
-    $('summarizeStatus').textContent = 'Gemini đang tóm tắt...';
-    $('summarizeStatus').className   = 'status spin';
-    $('summarizeBtn').disabled       = true;
-
-    const prompt = `Bạn là trợ lý giúp tóm tắt bài viết kỹ thuật thành ghi chú học tập bằng tiếng Việt.
-
-Hãy tóm tắt bài viết sau và tạo file Markdown theo format Astro Content Collections.
-
-YÊU CẦU FRONTMATTER:
-- title: tiêu đề tóm tắt bằng tiếng Việt (ngắn gọn, súc tích)
+Tạo file Markdown với frontmatter Astro:
+- title: tiêu đề tiếng Việt ngắn gọn
 - category: "${cat}"
 - categoryOrder: ${catOrd}
 - order: 1
 - source: "${url}"
 - sourceLabel: "${label}"
 
-YÊU CẦU NỘI DUNG:
-- Dòng đầu: *Đây là tóm tắt và ghi chú cá nhân từ bài viết gốc trên ${label}.*
-- Tóm tắt các ý chính bằng tiếng Việt với heading ##, bullet points
-- Giữ các thuật ngữ kỹ thuật bằng tiếng Anh
-- Thêm ## Bài học rút ra hoặc ghi chú cá nhân ở cuối
-- KHÔNG dịch toàn bộ — hãy diễn giải bằng lời của mình
+Nội dung:
+- Dòng đầu: *Tóm tắt cá nhân từ bài gốc trên ${label}.*
+- Tóm tắt ý chính bằng tiếng Việt, dùng ## heading và bullet points
+- Giữ thuật ngữ kỹ thuật tiếng Anh
+- Thêm ## Bài học rút ra ở cuối
+- Chỉ trả về Markdown, không giải thích thêm
 
-Chỉ trả về nội dung Markdown (bao gồm frontmatter ---, không kèm giải thích).
-
-BÀI VIẾT GỐC:
+BÀI VIẾT:
 ${content.slice(0, 12000)}`;
 
-    try {
-      const endpoint =
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2048,
+        temperature: 0.4,
+      }),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || res.statusText); }
+    const data = await res.json();
+    const md   = data.choices?.[0]?.message?.content || '';
+    if (!md) throw new Error('Không nhận được nội dung từ OpenAI');
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.4 },
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error?.message || res.statusText);
-      }
-
-      const data     = await res.json();
-      const markdown = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!markdown) throw new Error('Gemini không trả về nội dung');
-
-      // Gợi ý tên file từ title trong frontmatter
-      const titleMatch = markdown.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-      const titleText  = titleMatch ? titleMatch[1] : 'bai-viet-moi';
-      $('filename').value  = toSlug(titleText).slice(0, 50);
-      $('folderName').value = toSlug(cat);
-
-      $('markdownPreview').value = markdown;
-      $('previewSection').style.display = 'block';
-      $('previewSection').scrollIntoView({ behavior: 'smooth' });
-
-      $('summarizeStatus').textContent = '✓ Tóm tắt xong! Kiểm tra và chỉnh sửa bên dưới.';
-      $('summarizeStatus').className   = 'status ok';
-    } catch (e) {
-      $('summarizeStatus').textContent = `✗ Lỗi: ${e.message}`;
-      $('summarizeStatus').className   = 'status err';
-    } finally {
-      $('summarizeBtn').disabled = false;
-    }
-  });
-
-  // ── Save to GitHub ────────────────────────────────────────────
-  $('saveBtn').addEventListener('click', async () => {
-    const token    = $('githubToken').value.trim() || localStorage.getItem('githubToken');
-    const folder   = $('folderName').value.trim();
-    const filename = $('filename').value.trim();
-    const content  = $('markdownPreview').value;
-
-    if (!token)    { alert('Vui lòng nhập GitHub Token trong phần ⚙️ Cài đặt'); return; }
-    if (!folder)   { alert('Vui lòng nhập tên thư mục (folder)'); return; }
-    if (!filename) { alert('Vui lòng nhập tên file'); return; }
-    if (!content)  { alert('Không có nội dung Markdown để lưu'); return; }
-
-    const path = `src/content/articles/${folder}/${filename}.md`;
-    const encoded = btoa(unescape(encodeURIComponent(content)));
-
-    $('saveStatus').textContent = 'Đang lưu lên GitHub...';
-    $('saveStatus').className   = 'status spin';
-    $('saveBtn').disabled       = true;
-
-    try {
-      // Kiểm tra file đã tồn tại chưa (để lấy sha nếu cần update)
-      let sha;
-      const checkRes = await fetch(
-        `https://api.github.com/repos/${REPO}/contents/${path}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (checkRes.ok) {
-        const existing = await checkRes.json();
-        sha = existing.sha;
-      }
-
-      const body = {
-        message: `feat: thêm bài "${filename}" vào ${folder}`,
-        content: encoded,
-        branch: BRANCH,
-        ...(sha ? { sha } : {}),
-      };
-
-      const res = await fetch(
-        `https://api.github.com/repos/${REPO}/contents/${path}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || res.statusText);
-      }
-
-      $('saveStatus').innerHTML =
-        `✓ Đã lưu! GitHub Actions đang deploy (~2 phút). ` +
-        `<a href="https://bangkts.github.io/articles/${folder}/${filename}" ` +
-        `target="_blank" style="color:var(--accent)">Xem bài →</a>`;
-      $('saveStatus').className = 'status ok';
-
-      // Reset form cho bài tiếp theo
-      setTimeout(() => {
-        if (confirm('Lưu thành công! Bạn có muốn thêm bài tiếp theo không?')) {
-          $('articleUrl').value      = '';
-          $('articleContent').value  = '';
-          $('markdownPreview').value = '';
-          $('previewSection').style.display = 'none';
-          $('summarizeStatus').textContent  = '';
-          $('fetchStatus').textContent      = '';
-          $('saveStatus').textContent       = '';
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }, 1500);
-
-    } catch (e) {
-      $('saveStatus').textContent = `✗ Lỗi: ${e.message}`;
-      $('saveStatus').className   = 'status err';
-    } finally {
-      $('saveBtn').disabled = false;
-    }
-  });
-
-  // ── Helpers ───────────────────────────────────────────────────
-  function toSlug(text) {
-    return text
-      .toLowerCase()
-      .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
-      .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
-      .replace(/[ìíịỉĩ]/g, 'i')
-      .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
-      .replace(/[ùúụủũưừứựửữ]/g, 'u')
-      .replace(/[ỳýỵỷỹ]/g, 'y')
-      .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
+    const titleMatch = md.match(/^title:\s*["']?(.+?)["']?\s*$/m);
+    const slug = toSlug(titleMatch ? titleMatch[1] : 'bai-viet-moi').slice(0, 50);
+    $('filename').value = slug;
+    $('folder').value   = toSlug(cat);
+    $('md').value       = md;
+    $('preview-card').style.display = 'block';
+    $('preview-card').scrollIntoView({ behavior: 'smooth' });
+    setMsg('summarizeMsg', '✓ Xong! Kiểm tra và chỉnh sửa bên dưới.', 'ok');
+  } catch(e) {
+    setMsg('summarizeMsg', `✗ ${e.message}`, 'err');
   }
+  $('summarizeBtn').disabled = false;
+};
+
+// ── Save to GitHub ────────────────────────────────────────────
+$('saveBtn').onclick = async () => {
+  const token  = $('ghToken').value.trim()  || localStorage.getItem('ghToken');
+  const folder = $('folder').value.trim();
+  const file   = $('filename').value.trim();
+  const md     = $('md').value;
+
+  if (!token)  { alert('Nhập GitHub Token trong ⚙️ Cài đặt'); return; }
+  if (!folder || !file) { alert('Nhập đủ tên thư mục và tên file'); return; }
+
+  const path    = `src/content/articles/${folder}/${file}.md`;
+  const encoded = btoa(encodeURIComponent(md).replace(/%([0-9A-F]{2})/g, (_, p) => String.fromCharCode(parseInt(p, 16))));
+
+  setMsg('saveMsg', 'Đang lưu...', 'spin');
+  $('saveBtn').disabled = true;
+
+  try {
+    // Lấy sha nếu file đã tồn tại
+    let sha;
+    const check = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`,
+      { headers: { Authorization: `Bearer ${token}` } });
+    if (check.ok) sha = (await check.json()).sha;
+
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `feat: thêm bài "${file}" vào ${folder}`,
+        content: encoded,
+        branch: 'main',
+        ...(sha ? { sha } : {}),
+      }),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message); }
+
+    setMsg('saveMsg',
+      `✓ Đã lưu! Trang sẽ cập nhật sau ~2 phút. <a href="https://bangkts.github.io/articles/${folder}/${file}" target="_blank" style="color:var(--accent)">Xem bài →</a>`,
+      'ok');
+
+    setTimeout(() => {
+      if (confirm('Lưu thành công! Thêm bài tiếp theo?')) {
+        ['url','content','md','filename','folder'].forEach(id => { $(id).value = ''; });
+        ['fetchMsg','summarizeMsg','saveMsg'].forEach(id => setMsg(id, '', ''));
+        $('preview-card').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 1200);
+  } catch(e) {
+    setMsg('saveMsg', `✗ ${e.message}`, 'err');
+  }
+  $('saveBtn').disabled = false;
+};
+
+// ── Helpers ───────────────────────────────────────────────────
+function setMsg(id, text, cls) {
+  const el = $(id);
+  el.innerHTML  = text;
+  el.className  = `msg ${cls}`;
+}
+
+function toSlug(text) {
+  return text.toLowerCase()
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g,'a').replace(/[èéẹẻẽêềếệểễ]/g,'e')
+    .replace(/[ìíịỉĩ]/g,'i').replace(/[òóọỏõôồốộổỗơờớợởỡ]/g,'o')
+    .replace(/[ùúụủũưừứựửữ]/g,'u').replace(/[ỳýỵỷỹ]/g,'y').replace(/đ/g,'d')
+    .replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
+}
 </script>
 </body>
 </html>
