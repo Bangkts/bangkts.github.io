@@ -16,6 +16,76 @@ import unicodedata
 from pathlib import Path
 
 
+# ── Thuật ngữ chuyên ngành cần giữ nguyên tiếng Anh ───────────────────────
+# Google Translate thường dịch sai những từ này
+TECH_TERMS = [
+    # AI / LLM core
+    "Prompt Engineering", "Prompt Injection", "Prompt",
+    "Injection attack", "SQL Injection", "Injection",
+    "Token", "Tokens", "Tokenization", "Tokenizer",
+    "Embedding", "Embeddings",
+    "Fine-tuning", "Fine-tune", "Fine-tuned",
+    "Pre-training", "Pre-trained",
+    "Inference",
+    "Context window", "Context length",
+    "Retrieval-Augmented Generation",
+    "Chain-of-thought",
+    "Zero-shot", "Few-shot", "One-shot",
+    "System prompt", "System message",
+    "Tool use", "Function calling",
+    "Agent", "Agents", "Agentic",
+    "Reasoning",
+    "Hallucination", "Hallucinate",
+    "Grounding",
+    "Alignment",
+    "RLHF", "RLAIF",
+    "InstructGPT", "ChatGPT", "GPT",
+    "Transformer", "Attention mechanism", "Self-attention",
+    "Neural network", "Deep learning",
+    "Backpropagation", "Gradient descent",
+    "Overfitting", "Underfitting",
+    "Hyperparameter",
+    "Batch size", "Learning rate",
+    "Epoch", "Iteration",
+    "Dropout", "Regularization",
+    "Softmax", "ReLU", "Sigmoid",
+    "Cross-entropy", "Loss function",
+    "Benchmark", "Evaluation",
+    "Vector", "Vectors",
+    "Cosine similarity",
+    "Semantic search",
+    "Vector database",
+    # DevOps / Software
+    "Deploy", "Deployment",
+    "Pipeline",
+    "Cache", "Caching",
+    "Latency", "Throughput",
+    "Endpoint",
+    "Webhook",
+    "Payload", "Schema",
+    "Index", "Indexing",
+    "Query",
+    "Middleware",
+    "Microservice",
+    "Container", "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "Rollback",
+    "Load balancing",
+    "Rate limiting",
+    "Timeout",
+    "Retry",
+    "Logging", "Observability", "Telemetry",
+    "Tracing",
+    # Data
+    "Dataset",
+    "Feature engineering",
+    "Data pipeline",
+    "ETL",
+    "Schema",
+    "Migration",
+]
+
 # ── Patterns ───────────────────────────────────────────────────────────────
 
 # URL tracking/sponsor điển hình
@@ -95,6 +165,90 @@ def fix_images(content: str) -> str:
         content, flags=re.IGNORECASE,
     )
     content = re.sub(r'!\[[^\]]*\]\(data:[^)]+\)', '', content)
+    return content
+
+
+def extract_youtube_id(url: str) -> str:
+    """Trích video ID từ các dạng URL YouTube."""
+    for pat in [
+        r'youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
+        r'youtu\.be/([a-zA-Z0-9_-]{11})',
+        r'youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+        r'youtube\.com/v/([a-zA-Z0-9_-]{11})',
+        r'youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
+    ]:
+        m = re.search(pat, url)
+        if m:
+            return m.group(1)
+    return ""
+
+
+def convert_youtube(content: str) -> str:
+    """
+    Chuyển YouTube embeds/URLs thành ảnh thumbnail có thể click.
+    Format: [![▶ Xem video](thumb)](youtube_url)
+    """
+    # 1. <iframe> YouTube
+    def replace_iframe(m: re.Match) -> str:
+        src = re.search(r'src=["\']([^"\']+)["\']', m.group(0))
+        if not src:
+            return m.group(0)
+        vid = extract_youtube_id(src.group(1))
+        if not vid:
+            return m.group(0)
+        thumb = f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
+        url   = f"https://www.youtube.com/watch?v={vid}"
+        return f'\n[![▶ Xem video trên YouTube]({thumb})]({url})\n'
+
+    content = re.sub(
+        r'<iframe[^>]+youtube[^>]+>.*?</iframe>',
+        replace_iframe,
+        content, flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # 2. URL YouTube đứng một mình (không nằm trong [](...))
+    def replace_bare_url(m: re.Match) -> str:
+        url = m.group(0)
+        vid = extract_youtube_id(url)
+        if not vid:
+            return url
+        thumb = f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
+        return f'[![▶ Xem video trên YouTube]({thumb})]({url})'
+
+    content = re.sub(
+        r'(?<!\()(https?://(?:www\.)?(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)[^\s\)\]"]+)',
+        replace_bare_url,
+        content,
+    )
+
+    return content
+
+
+def protect_tech_terms(content: str) -> tuple:
+    """
+    Bảo vệ thuật ngữ chuyên ngành trước khi dịch.
+    Trả về (content_with_placeholders, {placeholder: original_term}).
+    """
+    term_map: dict = {}
+    # Sắp xếp dài trước để tránh match một phần của cụm từ dài hơn
+    sorted_terms = sorted(TECH_TERMS, key=len, reverse=True)
+
+    for i, term in enumerate(sorted_terms):
+        placeholder = f"__TERM{i:03d}__"
+        # Dùng word boundary, case-sensitive
+        escaped = re.escape(term)
+        pattern = rf'(?<!\w){escaped}(?!\w)'
+        if re.search(pattern, content):
+            term_map[placeholder] = term
+            content = re.sub(pattern, placeholder, content)
+
+    return content, term_map
+
+
+def restore_tech_terms(content: str, term_map: dict) -> str:
+    """Khôi phục thuật ngữ chuyên ngành sau khi dịch."""
+    for placeholder, original in term_map.items():
+        content = content.replace(placeholder, original)
     return content
 
 
@@ -214,7 +368,7 @@ def truncate_at_comments(content: str) -> str:
 
 
 def clean_content(raw: str) -> str:
-    """Pipeline đầy đủ: header → nav → sponsor → comments → images."""
+    """Pipeline đầy đủ: header → nav → sponsor → comments → images → youtube."""
     lines = raw.splitlines()
     lines = strip_jina_header(lines)
     lines = strip_site_navigation(lines)
@@ -222,7 +376,7 @@ def clean_content(raw: str) -> str:
     content = remove_sponsor_blocks(content)
     content = truncate_at_comments(content)
     content = fix_images(content)
-    # Dọn nhiều dòng trắng liên tiếp
+    content = convert_youtube(content)        # YouTube → clickable thumbnail
     content = re.sub(r'\n{3,}', '\n\n', content).strip()
     return content
 
@@ -242,7 +396,10 @@ def translate_markdown(content: str) -> str:
 
     translator = GoogleTranslator(source='en', target='vi')
 
-    # ── Bảo vệ các phần không dịch ──────────────────────────────
+    # ── Bảo vệ thuật ngữ chuyên ngành TRƯỚC TIÊN ────────────────
+    content, term_map = protect_tech_terms(content)
+
+    # ── Bảo vệ các phần cấu trúc không dịch ─────────────────────
     placeholders: dict = {}
     counter = [0]
 
@@ -388,6 +545,9 @@ def translate_markdown(content: str) -> str:
     # ── Khôi phục các placeholder còn lại (IMG, CODE, INLINE) ────
     for key, original in placeholders.items():
         translated = translated.replace(key, original)
+
+    # ── Khôi phục thuật ngữ chuyên ngành ─────────────────────────
+    translated = restore_tech_terms(translated, term_map)
 
     return translated
 
