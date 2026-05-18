@@ -266,17 +266,30 @@ def translate_markdown(content: str) -> str:
         content,
     )
 
-    # 3. Image URLs  ![alt](url)  — bảo vệ URL, giữ alt text
+    # 3. Ảnh ![alt](url) — bảo vệ TOÀN BỘ, không tách ra
+    # Google Translate sẽ phá vỡ cú pháp nếu chỉ bảo vệ một phần
     content = re.sub(
-        r'!\[([^\]]*)\]\(([^)]+)\)',
-        lambda m: f'![{m.group(1)}]({protect(m.group(2), "IMGURL")})',
+        r'!\[[^\]]*\]\([^)]+\)',
+        lambda m: protect(m.group(0), "IMG"),
         content,
+        flags=re.DOTALL,
     )
 
-    # 4. Link URLs  [text](url)  — bảo vệ URL, dịch text
+    # 4. Link [text](url) — bảo vệ URL, dịch text riêng sau
+    # Lưu (text, url) để khôi phục sau khi dịch
+    link_store: dict = {}
+
+    def protect_link(match: re.Match) -> str:
+        text = match.group(1)
+        url  = match.group(2)
+        key  = f"__LNK_{counter[0]}__"
+        link_store[key] = (text, url)
+        counter[0] += 1
+        return key
+
     content = re.sub(
         r'\[([^\]]+)\]\(([^)]+)\)',
-        lambda m: f'[{m.group(1)}]({protect(m.group(2), "LINKURL")})',
+        protect_link,
         content,
     )
 
@@ -364,7 +377,15 @@ def translate_markdown(content: str) -> str:
 
     translated = '\n'.join(result_lines)
 
-    # ── Khôi phục placeholders ───────────────────────────────────
+    # ── Khôi phục links: dịch text, giữ URL ─────────────────────
+    for key, (text, url) in link_store.items():
+        try:
+            vi_text = translator.translate(text) if text.strip() else text
+        except Exception:
+            vi_text = text
+        translated = translated.replace(key, f'[{vi_text}]({url})')
+
+    # ── Khôi phục các placeholder còn lại (IMG, CODE, INLINE) ────
     for key, original in placeholders.items():
         translated = translated.replace(key, original)
 
