@@ -227,6 +227,170 @@ def clean_content(raw: str) -> str:
     return content
 
 
+def translate_markdown(content: str) -> str:
+    """
+    Dịch nội dung Markdown từ tiếng Anh sang tiếng Việt.
+    Giữ nguyên: code blocks, inline code, URLs, ảnh, frontmatter keys.
+    Dịch: tiêu đề, đoạn văn, heading, bullet points.
+    Dùng deep-translator (Google Translate, không cần API key).
+    """
+    try:
+        from deep_translator import GoogleTranslator
+    except ImportError:
+        print("⚠ deep-translator chưa cài. Bỏ qua dịch thuật.")
+        return content
+
+    translator = GoogleTranslator(source='en', target='vi')
+
+    # ── Bảo vệ các phần không dịch ──────────────────────────────
+    placeholders: dict = {}
+    counter = [0]
+
+    def protect(text: str, prefix: str = "PLACEHOLDER") -> str:
+        key = f"__{prefix}_{counter[0]}__"
+        placeholders[key] = text
+        counter[0] += 1
+        return key
+
+    # 1. Code blocks ```...```
+    content = re.sub(
+        r'```[\s\S]*?```',
+        lambda m: protect(m.group(0), "CODE"),
+        content,
+    )
+
+    # 2. Inline code `...`
+    content = re.sub(
+        r'`[^`\n]+`',
+        lambda m: protect(m.group(0), "INLINE"),
+        content,
+    )
+
+    # 3. Image URLs  ![alt](url)  — bảo vệ URL, giữ alt text
+    content = re.sub(
+        r'!\[([^\]]*)\]\(([^)]+)\)',
+        lambda m: f'![{m.group(1)}]({protect(m.group(2), "IMGURL")})',
+        content,
+    )
+
+    # 4. Link URLs  [text](url)  — bảo vệ URL, dịch text
+    content = re.sub(
+        r'\[([^\]]+)\]\(([^)]+)\)',
+        lambda m: f'[{m.group(1)}]({protect(m.group(2), "LINKURL")})',
+        content,
+    )
+
+    # ── Dịch từng dòng ──────────────────────────────────────────
+    def safe_translate(text: str) -> str:
+        """Dịch an toàn — bỏ qua dòng trống, placeholder, code."""
+        if not text.strip():
+            return text
+        if text.strip().startswith('__') and text.strip().endswith('__'):
+            return text  # placeholder thuần
+        # Giới hạn 4500 ký tự mỗi request Google Translate
+        if len(text) <= 4500:
+            try:
+                return translator.translate(text)
+            except Exception:
+                return text
+        # Dòng quá dài: dịch từng đoạn 4000 ký tự
+        chunks, cur = [], ""
+        for word in text.split(" "):
+            if len(cur) + len(word) + 1 > 4000:
+                try:
+                    chunks.append(translator.translate(cur.strip()))
+                except Exception:
+                    chunks.append(cur.strip())
+                cur = word
+            else:
+                cur += (" " if cur else "") + word
+        if cur:
+            try:
+                chunks.append(translator.translate(cur.strip()))
+            except Exception:
+                chunks.append(cur.strip())
+        return " ".join(chunks)
+
+    lines = content.splitlines()
+    result_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Bỏ qua dòng trống
+        if not stripped:
+            result_lines.append(line)
+            continue
+
+        # Bỏ qua frontmatter separators và các field key (không dịch key)
+        if stripped == '---':
+            result_lines.append(line)
+            continue
+
+        # Heading: dịch phần text sau ##
+        heading_match = re.match(r'^(#{1,6}\s+)(.*)', line)
+        if heading_match:
+            prefix = heading_match.group(1)
+            text   = heading_match.group(2)
+            result_lines.append(prefix + safe_translate(text))
+            continue
+
+        # Bullet list: dịch phần text sau - hoặc *
+        bullet_match = re.match(r'^(\s*[-*+]\s+)(.*)', line)
+        if bullet_match:
+            prefix = bullet_match.group(1)
+            text   = bullet_match.group(2)
+            result_lines.append(prefix + safe_translate(text))
+            continue
+
+        # Numbered list
+        num_match = re.match(r'^(\s*\d+\.\s+)(.*)', line)
+        if num_match:
+            prefix = num_match.group(1)
+            text   = num_match.group(2)
+            result_lines.append(prefix + safe_translate(text))
+            continue
+
+        # Blockquote
+        quote_match = re.match(r'^(>\s*)(.*)', line)
+        if quote_match:
+            prefix = quote_match.group(1)
+            text   = quote_match.group(2)
+            result_lines.append(prefix + safe_translate(text))
+            continue
+
+        # Dòng thường
+        result_lines.append(safe_translate(line))
+
+    translated = '\n'.join(result_lines)
+
+    # ── Khôi phục placeholders ───────────────────────────────────
+    for key, original in placeholders.items():
+        translated = translated.replace(key, original)
+
+    return translated
+
+
+def translate_frontmatter_title(frontmatter: str) -> str:
+    """Chỉ dịch title trong frontmatter, giữ nguyên các field khác."""
+    try:
+        from deep_translator import GoogleTranslator
+        translator = GoogleTranslator(source='en', target='vi')
+
+        def translate_title(match):
+            original_title = match.group(1)
+            try:
+                vi_title = translator.translate(original_title)
+                return f'title: "{vi_title}"'
+            except Exception:
+                return match.group(0)
+
+        return re.sub(r'^title:\s*"([^"]+)"', translate_title,
+                      frontmatter, flags=re.MULTILINE)
+    except ImportError:
+        return frontmatter
+
+
 def next_order(output_dir: str) -> int:
     path = Path(output_dir)
     if not path.exists():
@@ -242,6 +406,7 @@ def main():
     parser.add_argument("--category",       required=True)
     parser.add_argument("--category-order", type=int, default=99)
     parser.add_argument("--output-dir",     required=True)
+    parser.add_argument("--translate",      action="store_true", default=False)
     args = parser.parse_args()
 
     with open(args.content_file, "r", encoding="utf-8") as f:
@@ -249,6 +414,13 @@ def main():
 
     title = extract_title(raw)
     body  = clean_content(raw)
+
+    # Dịch sang tiếng Việt nếu được yêu cầu
+    if args.translate:
+        print("Đang dịch sang tiếng Việt...")
+        body = translate_markdown(body)
+        print("✓ Dịch xong")
+
     slug  = slugify(title)[:60] or "bai-viet-moi"
     order = next_order(args.output_dir)
 

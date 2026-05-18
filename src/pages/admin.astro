@@ -53,6 +53,9 @@ const categories = Object.entries(catMap)
     .msg.err  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
     .msg.spin { background: #fff7ed; color: var(--accent); border: 1px solid #fed7aa; }
     .hint { font-size: .75rem; color: #aaa; margin-top: .3rem; }
+    .lang-row { display: flex; gap: 1rem; margin-bottom: .9rem; flex-wrap: wrap; }
+    .lang-opt  { display: flex; align-items: center; gap: .4rem; cursor: pointer; font-size: .875rem; color: #444; }
+    .lang-opt input { accent-color: var(--accent); cursor: pointer; }
     details { margin-top: .5rem; }
     summary { cursor: pointer; font-size: .8rem; color: #999; user-select: none; padding: .3rem 0; }
     summary:hover { color: #444; }
@@ -93,6 +96,18 @@ const categories = Object.entries(catMap)
         <label>Tên nguồn</label>
         <input type="text" id="sourceLabel" value="ByteByteGo" />
       </div>
+    </div>
+
+    <!-- Toggle ngôn ngữ -->
+    <div class="lang-row">
+      <label class="lang-opt">
+        <input type="radio" name="lang" value="en" checked />
+        <span>Giữ nguyên tiếng Anh</span>
+      </label>
+      <label class="lang-opt">
+        <input type="radio" name="lang" value="vi" />
+        <span>🇻🇳 Dịch sang tiếng Việt</span>
+      </label>
     </div>
 
     <button class="btn" id="autoBtn">🚀 Thêm bài tự động</button>
@@ -163,6 +178,7 @@ $('autoBtn').onclick = async () => {
   const url   = $('url').value.trim();
   const [category, folder, catOrder] = $('category').value.split('|');
   const sourceLabel = $('sourceLabel').value.trim();
+  const translate   = document.querySelector('input[name="lang"]:checked')?.value === 'vi';
 
   if (!token) {
     alert('Vui lòng nhập GitHub Token trong ⚙️ GitHub Token bên dưới');
@@ -194,15 +210,19 @@ $('autoBtn').onclick = async () => {
             category,
             category_order: catOrder,
             output_folder: folder,
+            translate: translate ? 'true' : 'false',
           },
         }),
       }
     );
 
     if (res.status === 204) {
-      showMsg('autoMsg',
-        '✅ Đã gửi thành công! GitHub Actions đang xử lý...<br>' +
-        'Bài viết sẽ xuất hiện trên trang sau <strong>~3 phút</strong>.<br>' +
+      const langNote = translate
+      ? '🇻🇳 Đang dịch sang tiếng Việt — mất thêm ~1 phút.<br>'
+      : '';
+    showMsg('autoMsg',
+        `✅ Đã gửi thành công! GitHub Actions đang xử lý...<br>${langNote}` +
+        'Bài viết sẽ xuất hiện trên trang sau <strong>~3–4 phút</strong>.<br>' +
         `<a href="https://github.com/${REPO}/actions" target="_blank" style="color:var(--accent)">` +
         'Theo dõi tiến trình →</a>',
         'ok');

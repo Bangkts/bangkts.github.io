@@ -22,10 +22,15 @@ on:
         description: 'Thư mục lưu bài (tên folder, vd: ai-notes)'
         required: false
         default: 'ai-notes'
+      translate:
+        description: 'Dịch sang tiếng Việt'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
-  actions: write   # cần để trigger deploy.yml
+  actions: write
 
 jobs:
   add-article:
@@ -34,12 +39,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history để git push không bị lỗi
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Cài dependencies
+        run: |
+          pip install deep-translator
 
       - name: Fetch bài viết qua r.jina.ai
         run: |
@@ -59,13 +68,20 @@ jobs:
 
       - name: Tạo file .md đúng chuẩn
         run: |
+          TRANSLATE_FLAG=""
+          if [ "${{ inputs.translate }}" = "true" ]; then
+            TRANSLATE_FLAG="--translate"
+            echo "🇻🇳 Sẽ dịch sang tiếng Việt"
+          fi
+
           python .github/scripts/create_article.py \
             --content-file /tmp/article_raw.md \
             --url "${{ inputs.url }}" \
             --source-label "${{ inputs.source_label }}" \
             --category "${{ inputs.category }}" \
             --category-order ${{ inputs.category_order }} \
-            --output-dir "src/content/articles/${{ inputs.output_folder }}"
+            --output-dir "src/content/articles/${{ inputs.output_folder }}" \
+            $TRANSLATE_FLAG
 
       - name: Commit và push
         id: commit
@@ -74,16 +90,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/content/articles/
           if git diff --staged --quiet; then
-            echo "Không có file mới — bài có thể đã tồn tại"
+            echo "Không có file mới"
             echo "changed=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "feat: tự động thêm bài từ ${{ inputs.url }}"
+            MSG="feat: thêm bài từ ${{ inputs.url }}"
+            if [ "${{ inputs.translate }}" = "true" ]; then
+              MSG="feat: thêm bài (VI) từ ${{ inputs.url }}"
+            fi
+            git commit -m "$MSG"
             git push
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
-      # QUAN TRỌNG: GITHUB_TOKEN push không tự trigger deploy.yml
-      # Phải gọi workflow_dispatch thủ công để kích hoạt deploy
       - name: Trigger deploy
         if: steps.commit.outputs.changed == 'true'
         run: |
@@ -93,4 +111,4 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches" \
             -d '{"ref":"main"}'
-          echo "✅ Deploy workflow đã được kích hoạt!"
+          echo "✅ Deploy workflow triggered!"
