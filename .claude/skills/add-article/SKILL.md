@@ -28,8 +28,19 @@ Thêm bài viết từ URL: $ARGUMENTS
      --source-label "<LABEL>" \
      --category "<CATEGORY>" \
      --category-order <ORDER> \
-     --output-dir src/content/articles/<folder>
+     --output-dir src/content/articles/<folder> \
+     --translate          # tuỳ chọn: dịch sang tiếng Việt
    ```
+
+   - Script tự nhận diện pattern `N - Title` ở đầu dòng (listicle) → heading H3
+   - Nếu bài có **section header** (chữ to in đậm phân nhóm các đề mục), jina **không fetch về được** → cần cung cấp thủ công qua flag `--sections`:
+     ```bash
+     --sections "Start Here@1|What Even Regular Users Don't Know@6|The Actual Point@Claude is not smarter"
+     ```
+     Format mỗi entry: `Tên Section@<vị trí>`. Vị trí có 2 dạng:
+     - `<số>` → chèn TRƯỚC đề mục `### N.` (vd `@6` chèn trước mục 6)
+     - `<text>` → chèn TRƯỚC dòng đầu tiên chứa text (vd `@Claude is not smarter` — dùng cho section conclusion sau item cuối)
+     - Mặc định `--section-level 2` (H2); đổi nếu cần H1.
 
 4. **Build kiểm tra** không lỗi: `npm run build`
 

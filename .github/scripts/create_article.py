@@ -423,6 +423,69 @@ def format_numbered_items(content: str) -> str:
     return '\n'.join(result)
 
 
+def parse_sections_spec(spec: str) -> list:
+    """Parse '--sections' arg dạng 'Name@N|Name@N|Name@text' → [(name, target)].
+
+    Target có thể là:
+    - int: insert TRƯỚC heading '### N. ...'
+    - str: insert TRƯỚC dòng đầu tiên chứa text này (case-insensitive)
+    """
+    if not spec:
+        return []
+    result = []
+    for entry in spec.split('|'):
+        entry = entry.strip()
+        if '@' not in entry:
+            continue
+        name, target = entry.rsplit('@', 1)
+        name, target = name.strip(), target.strip()
+        if not name or not target:
+            continue
+        try:
+            result.append((name, int(target)))
+        except ValueError:
+            result.append((name, target))
+    return result
+
+
+def insert_sections(content: str, sections: list, level: int = 2) -> str:
+    """Insert section heading trước numbered item hoặc text marker.
+
+    `sections`: list (name, target). target = int (item N) hoặc str (text).
+    `level`: heading level (1 = '#', 2 = '##').
+    Sections phải được insert TRƯỚC khi dịch để translate_markdown xử lý cả heading.
+    """
+    if not sections:
+        return content
+
+    prefix = '#' * level
+    lines = content.split('\n')
+
+    item_re = re.compile(r'^###\s+(\d{1,2})\.\s+')
+    item_pos = {}
+    for i, line in enumerate(lines):
+        m = item_re.match(line)
+        if m:
+            item_pos[int(m.group(1))] = i
+
+    resolved = []
+    for name, target in sections:
+        if isinstance(target, int):
+            pos = item_pos.get(target)
+        else:
+            t = target.lower()
+            pos = next((i for i, ln in enumerate(lines) if t in ln.lower()), None)
+        if pos is not None:
+            resolved.append((name, pos))
+
+    # Insert từ cuối lên để không lệch index
+    resolved.sort(key=lambda x: x[1], reverse=True)
+    for name, pos in resolved:
+        lines[pos:pos] = ['', f'{prefix} {name}', '']
+
+    return '\n'.join(lines)
+
+
 def clean_content(raw: str) -> str:
     """Pipeline đầy đủ: header → nav → sponsor → comments → images → youtube → numbered."""
     lines = raw.splitlines()
@@ -645,6 +708,11 @@ def main():
     parser.add_argument("--category-order", type=int, default=99)
     parser.add_argument("--output-dir",     required=True)
     parser.add_argument("--translate",      action="store_true", default=False)
+    parser.add_argument("--sections",       default="",
+                        help="Danh sách section header (pipe-separated). "
+                             "Format: 'Name@N|Name@text|...'. N = số mục, text = marker.")
+    parser.add_argument("--section-level",  type=int, default=2,
+                        help="Heading level cho section (1=H1, 2=H2). Mặc định 2.")
     args = parser.parse_args()
 
     with open(args.content_file, "r", encoding="utf-8") as f:
@@ -652,6 +720,12 @@ def main():
 
     title = extract_title(raw)
     body  = clean_content(raw)
+
+    # Insert section headers TRƯỚC khi dịch để translate_markdown xử lý cả heading
+    sections = parse_sections_spec(args.sections)
+    if sections:
+        body = insert_sections(body, sections, level=args.section_level)
+        print(f"✓ Đã chèn {len(sections)} section header")
 
     # Dịch sang tiếng Việt nếu được yêu cầu
     if args.translate:

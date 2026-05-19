@@ -6,10 +6,13 @@ order: 6
 source: "https://x.com/AnatoliKopadze/status/2054568935274549597"
 sourceLabel: "X / Twitter"
 ---
-![](https://pbs.twimg.com/media/HINFgLgWYAAoFAv?format=jpg&name=large)
+
 Claude đã ra ngoài được hai năm. Hầu hết những người sử dụng nó hàng ngày vẫn đang sử dụng 10% những gì nó có thể làm được.
 
 Không phải vì nó phức tạp. Bởi vì không ai cho họ thấy 90% còn lại trông như thế nào. Hướng dẫn này khắc phục điều đó. Cuối cùng, bạn sẽ thiết lập được Claude theo cách ghi nhớ bạn, hiểu bạn và làm việc theo cách bạn thực sự nghĩ. Và bạn sẽ biết cách sử dụng nó vào những việc mà hầu hết mọi người chưa bao giờ thử.
+
+
+## Bắt đầu ở đây
 
 ### 1. Tạo dự án chứ không phải trò chuyện
 
@@ -58,6 +61,9 @@ Write them in second person, as if Claude is reading rules about how to help me.
 
 Lấy đầu ra và dán nó vào Hướng dẫn dự án của bạn. Đây trở thành chế độ hoạt động cố định của Claude cho mọi cuộc trò chuyện trong Dự án này.
 
+
+## Claude không như bạn nghĩ
+
 ### 4. Claude không phải là công cụ tìm kiếm
 
 Hầu hết mọi người sử dụng Claude theo cách họ sử dụng Google. Họ gõ một câu hỏi và chờ đợi câu trả lời. Đó là cách có giá trị thấp nhất để sử dụng nó.
@@ -92,7 +98,8 @@ I need you to help me write a cold email to a potential client.
 Before you write anything, ask me what you need to know to make this genuinely good, not generic.
 ```
 
-## Điều mà ngay cả người dùng thường xuyên cũng không biết
+
+## Điều mà ngay cả người dùng thông thường cũng không biết
 
 ### 6. Nhân bản phong cách
 
@@ -162,6 +169,9 @@ Include role, context, format instructions, and any constraints that would impro
 Then use that prompt immediately.
 ```
 
+
+## Cách chi tiêu ít hơn Tokens và nhận được nhiều hơn
+
 ### 10. Chỉ định độ dài đầu ra
 
 Mặc định của Claude là viết bao nhiêu tùy thích. Con số này thường nhiều hơn mức bạn cần, có nghĩa là sử dụng nhiều mã thông báo hơn, dành nhiều thời gian hơn cho việc đọc và nhiều tiếng ồn hơn ở đầu ra.
@@ -206,7 +216,10 @@ Claude mang bối cảnh của mọi điều đã nói trước đó trong cuộ
 
 Khi bạn chuyển sang nội dung nào đó không liên quan, hãy bắt đầu một cuộc trò chuyện mới trong Dự án của bạn. Bạn giữ bộ nhớ Dự án. Bạn bị mất hành lý không liên quan.
 
-## Những lời nhắc đầy đủ bạn có thể sao chép và sử dụng ngay lập tức
+Đây là những lời nhắc đầy đủ mà bạn có thể sao chép và sử dụng ngay lập tức.
+
+
+## Sẵn sàng để sử dụng ngay bây giờ
 
 ### 14. Hiểu bất cứ điều gì thông qua phép loại suy (phương pháp Feynman)
 
@@ -299,6 +312,9 @@ Be specific. Generic risks like "the market might not be ready" are not useful. 
 
 After that, tell me what the idea would need to look like to actually work.
 ```
+
+
+## Điểm thực tế
 
 Claude không thông minh hơn bạn. Nó không có ý tưởng nào tốt hơn bạn. Những gì nó có là sự kiên nhẫn vô hạn, kiến ​​thức rộng và khả năng suy nghĩ thấu đáo các vấn đề từ những góc độ mà bạn chưa từng xem xét.
 
