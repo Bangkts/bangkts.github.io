@@ -40,14 +40,9 @@ Thêm bài viết từ URL: $ARGUMENTS
    git push
    ```
 
-6. **Trigger deploy** (bắt buộc — GITHUB_TOKEN push không tự trigger):
-   ```bash
-   curl -s -X POST \
-     -H "Authorization: Bearer $(git config credential.helper)" \
-     "https://api.github.com/repos/Bangkts/bangkts.github.io/actions/workflows/deploy.yml/dispatches" \
-     -d '{"ref":"main"}'
-   ```
-   Hoặc đơn giản hơn: push code và thông báo cho user chờ ~2 phút.
+6. **Chờ deploy tự động**: `git push` từ máy local (bước 5) đã tự trigger `deploy.yml` — chờ ~2 phút rồi kiểm tra https://bangkts.github.io.
+
+   > Lưu ý: chỉ khi push từ GitHub Actions mới cần trigger thủ công (GITHUB_TOKEN bị chặn). Khi chạy local, bước này không cần.
 
 ## Ví dụ sử dụng
 ```

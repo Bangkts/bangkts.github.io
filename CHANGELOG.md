@@ -5,6 +5,31 @@ Format: `## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn`, theo sau là danh sách 
 
 ---
 
+## [2026-05-19 09:36:45] — Fix bài Anatoli Kopadze rỗng, sửa skill add-article, tính năng dịch VI
+
+### Thêm mới
+- Tính năng tự động dịch bài sang tiếng Việt bằng `deep-translator` (không cần API key)
+- Pipeline dịch giữ nguyên thuật ngữ chuyên ngành (AI/LLM, prompt engineering...)
+- YouTube link tự render thành clickable thumbnail
+- Thêm các bài mới: Pinterest MCP, Databricks rate limiting, Grab AI agents, Anatoli Kopadze về Claude, EP215 Anatomy of an AI Agent
+
+### Sửa đổi
+- Skill `/add-article` ([SKILL.md](.claude/skills/add-article/SKILL.md)):
+  - Bỏ command sai `$(git config credential.helper)` (trả về tên helper, không phải token)
+  - Làm rõ: `git push` từ local đã tự trigger `deploy.yml`, không cần curl thủ công
+  - Cảnh báo GITHUB_TOKEN chỉ áp dụng cho push trong GitHub Actions
+
+### Sửa lỗi
+- Bài "Anatoli Kopadze on X" có file `.md` chỉ có frontmatter, body rỗng → fetch lại qua `r.jina.ai`, dịch sang VI, 299 dòng nội dung
+- Escape dấu nháy đơn trong YAML title để tránh lỗi build Astro
+- Bảo vệ toàn bộ `![alt](url)` khi dịch, tránh Google Translate phá vỡ cú pháp ảnh
+- Lọc sponsor/ads và comments khỏi nội dung bài viết bằng look-ahead pattern
+
+### Lưu ý môi trường
+- Cài `deep-translator` qua `pip3 install deep-translator` để skill `/add-article` có thể dịch (script không tự động cài)
+
+---
+
 ## [2026-05-13 15:29:08] — Cập nhật format timestamp CHANGELOG
 
 ### Sửa đổi
