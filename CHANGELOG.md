@@ -5,6 +5,24 @@ Format: `## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn`, theo sau là danh sách 
 
 ---
 
+## [2026-05-19 10:41:33] — Pipeline format headings + fix sponsor detection nuốt cả bài
+
+### Thêm mới
+- `format_numbered_items()` trong [create_article.py](.github/scripts/create_article.py): pattern `N - Title [Body]` ở đầu dòng → heading `### N. Title` + tách body ra dòng riêng. Skip dòng trong code block. Chỉ match dash `-` (không match dấu chấm `.`) để tránh nhầm với numbered list trong prompt examples.
+- Flag `--sections` cho `create_article.py`: cho phép user cung cấp danh sách section header thủ công khi jina không fetch về được. Format `"Name@N|Name@text|..."` — vị trí là số mục hoặc text marker. Section names tự được dịch theo nếu kèm `--translate`.
+- Flag `--section-level` (1 hoặc 2, mặc định 2) để chọn heading level.
+
+### Sửa đổi
+- Bài Anatoli Kopadze: cấu trúc đầy đủ 6 section H2 (Start Here / Claude Is Not What You Think / What Even Regular Users Don't Know / How to Spend Fewer Tokens... / Ready to Use Right Now / The Actual Point) + 18 đề mục H3, khớp với bài gốc trên X.
+- Skill [`/add-article`](.claude/skills/add-article/SKILL.md): document flag `--sections` và `--translate` với ví dụ cụ thể.
+
+### Sửa lỗi
+- **Sponsor detection nuốt cả bài** (gặp khi thêm bài Figma Help "Workflow lab: Code to canvas"): pattern `get\s+started\s*(for\s+free)?` match cả câu "Get started with X" thường. Bài không có `* * *` ngăn cách → toàn bài là 1 section → 1 câu match = xoá sạch 7918 chars.
+  - Tighten `SPONSOR_CTA`: bắt buộc suffix `for free|today|now` sau `get started` / `sign up`.
+  - Giới hạn `remove_sponsor_blocks`: chỉ flag section khi `len < 1500 chars`. Sponsor block thực sự thường ngắn, nội dung chính dài hơn nên an toàn.
+
+---
+
 ## [2026-05-19 09:36:45] — Fix bài Anatoli Kopadze rỗng, sửa skill add-article, tính năng dịch VI
 
 ### Thêm mới
