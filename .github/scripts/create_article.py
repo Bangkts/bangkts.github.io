@@ -98,11 +98,12 @@ SPONSOR_URL = re.compile(
     re.IGNORECASE,
 )
 
-# Text CTA của quảng cáo
+# Text CTA của quảng cáo — yêu cầu suffix cụ thể để tránh false positive
+# với câu thường (vd: "Get started with X" trong bài tutorial không phải sponsor)
 SPONSOR_CTA = re.compile(
     r'try\s+\w+\s+(for\s+)?free'
-    r'|get\s+started\s*(for\s+free)?'
-    r'|sign\s+up\s+(for\s+free|today)'
+    r'|get\s+started\s+(for\s+free|today|now)'
+    r'|sign\s+up\s+(for\s+free|today|now)'
     r'|start\s+(your\s+)?(free\s+)?trial'
     r'|\[.{2,60}→\]\(https?://'    # [text →](url) — CTA link với mũi tên
     r'|\[give\s+your',
@@ -345,8 +346,9 @@ def remove_sponsor_blocks(content: str) -> str:
         stripped = section.strip()
         if re.match(r'^[\*\-\_\s]{1,5}$', stripped):
             continue
-        # Bỏ section chứa sponsor
-        if is_sponsor_paragraph(stripped):
+        # Bỏ section chứa sponsor — CHỈ khi section ngắn (< 1500 chars)
+        # Section dài là nội dung chính, có thể chứa câu giống CTA nhưng không phải sponsor
+        if len(stripped) < 1500 and is_sponsor_paragraph(stripped):
             continue
         clean_sections.append(section)
 
