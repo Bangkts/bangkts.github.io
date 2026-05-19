@@ -5,6 +5,18 @@ Format: `## [YYYY-MM-DD HH:MM:SS] — mô tả ngắn`, theo sau là danh sách 
 
 ---
 
+## [2026-05-19 10:59:01] — Dọn credential rác, SKILL detect listicle, fix bài Figma trống
+
+### Sửa đổi
+- Skill [`/add-article`](.claude/skills/add-article/SKILL.md): thêm bước 3 — `grep -cE "^[0-9]+ - "` để đếm numbered items; nếu ≥ 5 → bắt buộc hỏi user về section header trước khi sinh file. Tránh quên flag `--sections` cho bài listicle có cấu trúc.
+- Git config global: xoá 2 entry `credential.https://github.com.helper` và `credential.https://gist.github.com.helper` trỏ tới `/tmp/gh_cli/...` (không tồn tại). Push không còn cảnh báo `gh auth git-credential`. Vẫn giữ `osxkeychain` mặc định.
+
+### Sửa lỗi
+- Bài Figma **"Workflow lab: Code to canvas"** ([programming/workflow-lab-code-to-canvas-figma-learn-help-center.md](src/content/articles/programming/workflow-lab-code-to-canvas-figma-learn-help-center.md)) body trống: tạo qua `/admin` web trước khi fix sponsor detection → bị bug cũ nuốt nội dung. Re-fetch jina + dịch, giữ slug/order/URL cũ. Sửa `sourceLabel: "ByteByteGo"` → `"Figma Help"`.
+- `translator.translate()` đôi khi trả về `None` không throw exception → `'\n'.join(...)` lỗi `TypeError: sequence item N: expected str instance, NoneType found`. Fix bằng wrapper `_tr()` kiểm tra `isinstance(result, str)`, fallback về text gốc. Áp dụng cho cả body, link text, và frontmatter title.
+
+---
+
 ## [2026-05-19 10:41:33] — Pipeline format headings + fix sponsor detection nuốt cả bài
 
 ### Thêm mới
