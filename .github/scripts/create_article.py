@@ -605,9 +605,12 @@ def main():
     slug  = slugify(title)[:60] or "bai-viet-moi"
     order = next_order(args.output_dir)
 
+    # Loại bỏ dấu nháy kép bên trong title để tránh lỗi YAML
+    safe_title = title.replace('"', "'").replace('\n', ' ').strip()
+
     frontmatter_lines = [
         "---",
-        f'title: "{title}"',
+        f'title: "{safe_title}"',
         f'category: "{args.category}"',
         f"categoryOrder: {args.category_order}",
         f"order: {order}",

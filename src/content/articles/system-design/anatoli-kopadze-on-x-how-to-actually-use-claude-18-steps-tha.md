@@ -1,5 +1,5 @@
 ---
-title: "Anatoli Kopadze on X: "How to Actually Use Claude. 18 steps that unlock 100% of its potential" / X"
+title: "Anatoli Kopadze on X: How to Actually Use Claude - 18 steps that unlock 100% of its potential"
 category: "System Design"
 categoryOrder: 1
 order: 6
