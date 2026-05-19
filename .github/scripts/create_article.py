@@ -367,8 +367,64 @@ def truncate_at_comments(content: str) -> str:
     return content
 
 
+# Các từ thường mở đầu một câu mới — dùng để tách title khỏi body khi jina gộp chung
+# Chỉ giữ những từ KHÔNG xuất hiện trong giữa tiêu đề
+_BODY_STARTERS = {
+    'Every', 'Most', 'Before', 'After', 'When', 'If', 'While',
+    'Pasting', 'Stop', 'Here', "Here's", 'Add', 'Click', 'Save',
+    "Don't", 'Then', 'Now', 'Some', 'These', 'Those', 'Each',
+}
+
+# Chỉ match dash/gạch ngang (`-`, `–`, `—`), KHÔNG match dấu chấm `.` —
+# để tránh nhầm với numbered list trong prompt/code (1., 2., 3.)
+NUMBERED_ITEM_RE = re.compile(r'^(\d{1,2})\s*[-–—]\s+(.+)$')
+
+
+def format_numbered_items(content: str) -> str:
+    """Pattern 'N - Title [Body]' đầu dòng → heading '### N. Title' + body riêng.
+
+    Áp dụng cho listicles kiểu '1 - Foo bar Some text...'. Tách title khỏi body
+    nếu jina gộp chung dòng bằng cách scan các từ mở đầu câu trong _BODY_STARTERS.
+    Bỏ qua dòng trong code block ```...```.
+    """
+    lines = content.split('\n')
+    result = []
+    in_code = False
+    for line in lines:
+        if line.lstrip().startswith('```'):
+            in_code = not in_code
+            result.append(line)
+            continue
+        if in_code:
+            result.append(line)
+            continue
+
+        m = NUMBERED_ITEM_RE.match(line)
+        if not m:
+            result.append(line)
+            continue
+
+        num = m.group(1)
+        rest = m.group(2).strip()
+        title_part, body_part = rest, ''
+
+        words = rest.split(' ')
+        for i in range(1, len(words)):
+            w = words[i].strip()
+            if w in _BODY_STARTERS and i >= 2 and len(words) - i >= 5:
+                title_part = ' '.join(words[:i]).strip(' \t,')
+                body_part  = ' '.join(words[i:]).strip()
+                break
+
+        result.append(f'### {num}. {title_part}')
+        if body_part:
+            result.append('')
+            result.append(body_part)
+    return '\n'.join(result)
+
+
 def clean_content(raw: str) -> str:
-    """Pipeline đầy đủ: header → nav → sponsor → comments → images → youtube."""
+    """Pipeline đầy đủ: header → nav → sponsor → comments → images → youtube → numbered."""
     lines = raw.splitlines()
     lines = strip_jina_header(lines)
     lines = strip_site_navigation(lines)
@@ -377,6 +433,7 @@ def clean_content(raw: str) -> str:
     content = truncate_at_comments(content)
     content = fix_images(content)
     content = convert_youtube(content)        # YouTube → clickable thumbnail
+    content = format_numbered_items(content)  # 'N - Title' → '### N. Title'
     content = re.sub(r'\n{3,}', '\n\n', content).strip()
     return content
 

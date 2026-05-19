@@ -11,9 +11,13 @@ Claude đã ra ngoài được hai năm. Hầu hết những người sử dụn
 
 Không phải vì nó phức tạp. Bởi vì không ai cho họ thấy 90% còn lại trông như thế nào. Hướng dẫn này khắc phục điều đó. Cuối cùng, bạn sẽ thiết lập được Claude theo cách ghi nhớ bạn, hiểu bạn và làm việc theo cách bạn thực sự nghĩ. Và bạn sẽ biết cách sử dụng nó vào những việc mà hầu hết mọi người chưa bao giờ thử.
 
-1 - Tạo Dự án, không phải cuộc trò chuyện Mỗi khi bạn mở một cuộc trò chuyện Claude mới, nó sẽ bắt đầu với bộ nhớ bằng không. Nó không biết tên bạn, công việc, mục tiêu của bạn hoặc cách bạn giao tiếp. Bạn dành vài tin nhắn đầu tiên để giải thích lại bản thân, nếu không thì không, và Claude đưa cho bạn điều gì đó chung chung không phù hợp với cách bạn thực sự làm việc. Các dự án khắc phục điều này. Dự án là một không gian làm việc ổn định, nơi Claude lưu giữ bối cảnh của mọi cuộc trò chuyện trong đó. Bạn thiết lập nó một lần và mọi phiên tiếp theo đều bắt đầu với việc Claude đã biết bạn là ai. Đi tới Claude, nhấp vào Dự án trong thanh bên và tạo một dự án mới. Đặt tên nó là "Cơ quan" hoặc "Cá nhân" tùy thuộc vào cách bạn dự định sử dụng nó. Mọi thứ tiếp theo đều nằm trong Dự án này.
+### 1. Tạo dự án chứ không phải trò chuyện
 
-2 - Nói cho Claude biết bạn là ai Trước khi Claude có thể giúp bạn tốt thì nó cần phải hiểu bạn. Hầu hết mọi người đều bỏ qua bước này hoàn toàn và thắc mắc tại sao Claude lại đưa ra những câu trả lời có vẻ hơi sai trái. Dán phần này vào Dự án của bạn và điền vào mọi trường một cách trung thực. Bạn càng cụ thể thì mọi phản hồi càng trở nên tốt hơn.
+Mỗi khi bạn mở một cuộc trò chuyện Claude mới, nó sẽ bắt đầu với bộ nhớ bằng không. Nó không biết tên bạn, công việc, mục tiêu của bạn hoặc cách bạn giao tiếp. Bạn dành vài tin nhắn đầu tiên để giải thích lại bản thân, nếu không thì không, và Claude đưa cho bạn điều gì đó chung chung không phù hợp với cách bạn thực sự làm việc. Các dự án khắc phục điều này. Dự án là một không gian làm việc ổn định, nơi Claude lưu giữ bối cảnh của mọi cuộc trò chuyện trong đó. Bạn thiết lập nó một lần và mọi phiên tiếp theo đều bắt đầu với việc Claude đã biết bạn là ai. Đi tới Claude, nhấp vào Dự án trong thanh bên và tạo một dự án mới. Đặt tên nó là "Cơ quan" hoặc "Cá nhân" tùy thuộc vào cách bạn dự định sử dụng nó. Mọi thứ tiếp theo đều nằm trong Dự án này.
+
+### 2. Nói cho Claude biết bạn là ai
+
+Trước khi Claude có thể giúp bạn tốt, nó cần phải hiểu bạn. Hầu hết mọi người đều bỏ qua bước này hoàn toàn và thắc mắc tại sao Claude lại đưa ra những câu trả lời có vẻ hơi sai trái. Dán phần này vào Dự án của bạn và điền vào mọi trường một cách trung thực. Bạn càng cụ thể thì mọi phản hồi càng trở nên tốt hơn.
 
 ```
 My name is [your name].
@@ -35,7 +39,9 @@ Topics and areas I care about: [your interests, industry, niche].
 
 Lưu cái này vào cơ sở kiến ​​thức của Dự án của bạn. Claude sẽ đọc nó khi bắt đầu mỗi cuộc trò chuyện trong Dự án này.
 
-3 - Biến điều đó thành Hướng dẫn tùy chỉnh Dán nền của bạn là một khởi đầu tốt. Nhưng Hướng dẫn tùy chỉnh còn đi xa hơn. Họ không chỉ cho Claude biết bạn là ai mà còn nói chính xác cách cư xử với bạn theo mặc định. Dán lời nhắc này vào Claude sau khi bạn điền vào mẫu ở trên:
+### 3. Biến nó thành Hướng dẫn tùy chỉnh
+
+Dán nền của bạn là một khởi đầu tốt. Nhưng Hướng dẫn tùy chỉnh còn đi xa hơn. Họ không chỉ cho Claude biết bạn là ai mà còn nói chính xác cách cư xử với bạn theo mặc định. Dán lời nhắc này vào Claude sau khi bạn điền vào mẫu ở trên:
 
 ```
 Based on everything I've told you about myself, write me a set of custom instructions for this Claude Project.
@@ -52,7 +58,7 @@ Write them in second person, as if Claude is reading rules about how to help me.
 
 Lấy đầu ra và dán nó vào Hướng dẫn dự án của bạn. Đây trở thành chế độ hoạt động cố định của Claude cho mọi cuộc trò chuyện trong Dự án này.
 
-4 - Claude không phải là công cụ tìm kiếm
+### 4. Claude không phải là công cụ tìm kiếm
 
 Hầu hết mọi người sử dụng Claude theo cách họ sử dụng Google. Họ gõ một câu hỏi và chờ đợi câu trả lời. Đó là cách có giá trị thấp nhất để sử dụng nó.
 
@@ -64,7 +70,7 @@ Hãy thử: "Tôi đang xây dựng một quy trình làm việc gọi Claude 20
 
 Lời nhắc thứ hai đưa ra cho Claude một vấn đề cần giải quyết cùng bạn. Việc đầu tiên cung cấp cho nó một định nghĩa để đọc thuộc lòng.
 
-5 - Yêu cầu Claude đặt câu hỏi cho bạn trước
+### 5. Yêu cầu Claude đặt câu hỏi cho bạn trước
 
 Đây là một trong những kỹ thuật mạnh mẽ nhất mà hầu như không ai sử dụng. Trước khi Claude bắt đầu bất kỳ nhiệm vụ phức tạp nào, hãy yêu cầu nó thu thập thông tin từ bạn trước.
 
@@ -86,7 +92,11 @@ I need you to help me write a cold email to a potential client.
 Before you write anything, ask me what you need to know to make this genuinely good, not generic.
 ```
 
-6 - Nhân bản phong cách Khi Claude viết bằng giọng của bạn mà không có ví dụ, nó sẽ viết bằng giọng của chính nó. Đầu ra đúng ngữ pháp và hoàn toàn sai về âm điệu. Nghe có vẻ giống AI vì nó đúng như vậy.
+## Điều mà ngay cả người dùng thường xuyên cũng không biết
+
+### 6. Nhân bản phong cách
+
+Khi Claude viết bằng giọng của bạn mà không có ví dụ, nó sẽ viết bằng giọng của chính nó. Đầu ra đúng ngữ pháp và hoàn toàn sai về âm điệu. Nghe có vẻ giống AI vì nó đúng như vậy.
 
 Đưa cho Claude ba đến năm mẫu bài viết của bạn. Yêu cầu nó phân tích các mẫu của bạn, không chỉ mô tả phong cách của bạn. Sau khi phân tích xong, nó viết giống như bạn chứ không giống như một trợ lý lịch sự của công ty.
 
@@ -102,7 +112,7 @@ Analyze my writing style in detail. Look at: sentence length, rhythm, vocabulary
 After this, when I ask you to write anything for me, match this style exactly. Do not default to your own patterns.
 ```
 
-7 - Claude là bạn tập của bạn
+### 7. Claude là bạn tập của bạn
 
 Hầu hết mọi người đều nhờ Claude giúp đỡ về ý tưởng. Điều đó có nghĩa là Claude xây dựng dựa trên những gì bạn nói, bổ sung, mở rộng nó. Bạn nhận được sự đồng ý và xây dựng.
 
@@ -120,7 +130,7 @@ After that, steelman my position. Build the strongest possible case for why I'm 
 Then tell me what you actually think.
 ```
 
-8 - Tư duy mở rộng
+### 8. Tư duy mở rộng
 
 Hầu hết người dùng Claude chưa bao giờ bật tính năng này. Tư duy mở rộng là chế độ trong đó Claude giải thích từng bước một vấn đề trước khi đưa ra câu trả lời cho bạn, thay vì đi thẳng vào kết quả đầu ra.
 
@@ -136,7 +146,7 @@ Work through the problem step by step, show your reasoning, identify where you'r
 
 Sự khác biệt về chất lượng đầu ra của các câu hỏi khó là rất đáng kể.
 
-9 - Claude viết lời nhắc cho Claude
+### 9. Claude viết lời nhắc cho Claude
 
 Đây là điều ít được sử dụng nhất mà bạn có thể làm. Nếu bạn không chắc chắn về cách nhắc Claude thực hiện một nhiệm vụ cụ thể, hãy nhờ Claude viết lời nhắc cho bạn.
 
@@ -152,7 +162,7 @@ Include role, context, format instructions, and any constraints that would impro
 Then use that prompt immediately.
 ```
 
-10 - Chỉ định độ dài đầu ra
+### 10. Chỉ định độ dài đầu ra
 
 Mặc định của Claude là viết bao nhiêu tùy thích. Con số này thường nhiều hơn mức bạn cần, có nghĩa là sử dụng nhiều mã thông báo hơn, dành nhiều thời gian hơn cho việc đọc và nhiều tiếng ồn hơn ở đầu ra.
 
@@ -166,7 +176,7 @@ Nói cho Claude biết chính xác bạn muốn có câu trả lời trong bao l
 
 Hướng dẫn này cắt giảm mức sử dụng mã thông báo trên hầu hết các tác vụ từ 40 đến 60 phần trăm mà không làm mất bất kỳ giá trị nào bạn thực sự cần.
 
-11 - Bỏ lời mở đầu
+### 11. Bỏ phần mở đầu
 
 Mọi phản hồi của Claude đều mặc định bắt đầu bằng điều gì đó mà bạn không yêu cầu. "Câu hỏi hay. Hãy để tôi giải thích điều này cho bạn." Hoặc trình bày lại đầy đủ những gì bạn vừa nói. Hoặc một tuyên bố từ chối trách nhiệm. Hoặc một bản tóm tắt kết thúc lặp lại tất cả những gì nó vừa nói với bạn. Bạn đã không yêu cầu bất cứ điều gì trong số đó. Nó tốn token và lãng phí thời gian của bạn.
 
@@ -182,7 +192,7 @@ Do not add a summary at the end unless I specifically ask for one.
 No disclaimers unless the topic genuinely requires one.
 ```
 
-12 - Đừng giải thích lại bản thân mỗi cuộc trò chuyện
+### 12. Đừng giải thích lại bản thân trong mỗi cuộc trò chuyện
 
 Nếu bạn dán cùng một thông tin cơ bản vào mỗi cuộc trò chuyện mới, thì bạn đang lãng phí mã thông báo mỗi lần và tự rèn luyện cho mình một thói quen khiến bạn tốn nhiều tiền hơn khi mức độ sử dụng Claude tăng lên.
 
@@ -190,15 +200,15 @@ Nếu bạn dán cùng một thông tin cơ bản vào mỗi cuộc trò chuyệ
 
 Nếu bạn chưa sử dụng Projects, hãy bắt đầu từ đó trước bất kỳ nội dung nào khác trong bài viết này.
 
-13 - Bắt đầu cuộc trò chuyện mới cho một chủ đề mới
+### 13. Bắt đầu cuộc trò chuyện mới cho một chủ đề mới
 
 Claude mang bối cảnh của mọi điều đã nói trước đó trong cuộc trò chuyện. Khi bạn chuyển chủ đề trong một cuộc trò chuyện dài, Claude vẫn tải tất cả bối cảnh trước đó. Điều đó có nghĩa là nhiều mã thông báo được sử dụng hơn cho mỗi phản hồi, quá trình xử lý chậm hơn và ngữ cảnh bị rò rỉ từ trước đó trong cuộc trò chuyện ảnh hưởng đến chủ đề mới của bạn.
 
 Khi bạn chuyển sang nội dung nào đó không liên quan, hãy bắt đầu một cuộc trò chuyện mới trong Dự án của bạn. Bạn giữ bộ nhớ Dự án. Bạn bị mất hành lý không liên quan.
 
-Đây là những lời nhắc đầy đủ mà bạn có thể sao chép và sử dụng ngay lập tức.
+## Những lời nhắc đầy đủ bạn có thể sao chép và sử dụng ngay lập tức
 
-14 - Hiểu bất cứ điều gì thông qua phép loại suy (phương pháp Feynman)
+### 14. Hiểu bất cứ điều gì thông qua phép loại suy (phương pháp Feynman)
 
 Hầu hết những lời giải thích mà Claude đưa ra đều đúng về mặt kỹ thuật và thực tế là vô ích. Họ sử dụng từ vựng giống như điều bạn đang cố hiểu, điều đó có nghĩa là bạn chỉ hiểu được một định nghĩa chứ không phải hiểu thực tế.
 
@@ -212,7 +222,7 @@ After each analogy, check whether I've actually understood it by asking me one q
 Keep going until I can explain it back to you in my own words without using any technical terms.
 ```
 
-15 - Kế hoạch du lịch được xây dựng dựa trên cách bạn thực sự đi du lịch
+### 15. Kế hoạch du lịch được xây dựng dựa trên cách bạn thực sự đi du lịch
 
 Hầu hết các kế hoạch du lịch đều bắt đầu bằng các điểm đến và kết thúc bằng một hành trình chung mà bạn có thể tìm thấy trên bất kỳ blog du lịch nào. Claude có thể làm điều gì đó khác biệt: xây dựng kế hoạch dựa trên phong cách du lịch, tốc độ, ngân sách cụ thể của bạn và những gì thực sự quan trọng với bạn chứ không phải những gì có trong mọi danh sách phải xem.
 
@@ -228,7 +238,7 @@ Things I want to avoid: [crowds, tourist traps, expensive restaurants, long tran
 Build me a day-by-day itinerary that fits this. For each day, include where to stay, what to do, where to eat, and any logistics I need to know. Flag anything that requires booking in advance.
 ```
 
-16 - Phân tích chi phí hàng tháng với kết luận thực tế
+### 16. Phân tích chi phí hàng tháng với kết luận thực tế
 
 Hầu hết mọi người nhìn vào bảng kê ngân hàng và cảm thấy mơ hồ về khoản chi tiêu của mình mà không hiểu điều gì đang thực sự xảy ra. Claude có thể biến những con số thô thành một bức tranh rõ ràng về việc tiền của bạn sẽ đi đâu và bạn thực sự nên làm gì với số tiền đó.
 
@@ -248,7 +258,7 @@ Here are my expenses: [paste your bank statement or expense list]
 My financial goals right now: [describe what you're trying to do — save more, pay off debt, invest, etc]
 ```
 
-17 - Claude là đối tác tư duy cá nhân của bạn
+### 17. Claude là đối tác tư duy cá nhân của bạn
 
 Hầu hết mọi người không có ai đó trong đời có thể lắng nghe mà không phán xét, đặt những câu hỏi phù hợp và giúp họ giải quyết vấn đề mà họ đang mắc kẹt mà không thúc đẩy chương trình nghị sự của riêng họ. Claude có thể đảm nhận vai trò đó nhưng chỉ khi bạn đưa ra hướng dẫn phù hợp.
 
@@ -266,7 +276,7 @@ Then, and only then, offer your perspective. Be honest, not reassuring. Tell me 
 Here's what's on my mind: [describe what you want to think through]
 ```
 
-18 - Kiểm tra căng thẳng bất kỳ ý tưởng kinh doanh nào trước khi bạn cam kết
+### 18. Kiểm tra kỹ lưỡng bất kỳ ý tưởng kinh doanh nào trước khi bạn cam kết
 
 Hầu hết các ý tưởng kinh doanh đều chết vì mọi người yêu thích chúng trước khi thử nghiệm chúng. Họ dành hàng tháng trời để xây dựng thứ mà không ai muốn vì họ chưa bao giờ thành thật hỏi liệu ý tưởng đó có thực sự tốt hay không.
 
