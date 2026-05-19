@@ -573,6 +573,14 @@ def translate_markdown(content: str) -> str:
     )
 
     # ── Dịch từng dòng ──────────────────────────────────────────
+    def _tr(s: str) -> str:
+        """Wrapper: bắt None/exception → fallback về text gốc."""
+        try:
+            result = translator.translate(s)
+            return result if isinstance(result, str) else s
+        except Exception:
+            return s
+
     def safe_translate(text: str) -> str:
         """Dịch an toàn — bỏ qua dòng trống, placeholder, code."""
         if not text.strip():
@@ -581,26 +589,17 @@ def translate_markdown(content: str) -> str:
             return text  # placeholder thuần
         # Giới hạn 4500 ký tự mỗi request Google Translate
         if len(text) <= 4500:
-            try:
-                return translator.translate(text)
-            except Exception:
-                return text
+            return _tr(text)
         # Dòng quá dài: dịch từng đoạn 4000 ký tự
         chunks, cur = [], ""
         for word in text.split(" "):
             if len(cur) + len(word) + 1 > 4000:
-                try:
-                    chunks.append(translator.translate(cur.strip()))
-                except Exception:
-                    chunks.append(cur.strip())
+                chunks.append(_tr(cur.strip()))
                 cur = word
             else:
                 cur += (" " if cur else "") + word
         if cur:
-            try:
-                chunks.append(translator.translate(cur.strip()))
-            except Exception:
-                chunks.append(cur.strip())
+            chunks.append(_tr(cur.strip()))
         return " ".join(chunks)
 
     lines = content.splitlines()
@@ -658,10 +657,7 @@ def translate_markdown(content: str) -> str:
 
     # ── Khôi phục links: dịch text, giữ URL ─────────────────────
     for key, (text, url) in link_store.items():
-        try:
-            vi_text = translator.translate(text) if text.strip() else text
-        except Exception:
-            vi_text = text
+        vi_text = _tr(text) if text.strip() else text
         translated = translated.replace(key, f'[{vi_text}]({url})')
 
     # ── Khôi phục các placeholder còn lại (IMG, CODE, INLINE) ────
@@ -684,6 +680,8 @@ def translate_frontmatter_title(frontmatter: str) -> str:
             original_title = match.group(1)
             try:
                 vi_title = translator.translate(original_title)
+                if not isinstance(vi_title, str):
+                    return match.group(0)
                 return f'title: "{vi_title}"'
             except Exception:
                 return match.group(0)
