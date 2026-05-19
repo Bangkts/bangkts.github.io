@@ -6,7 +6,7 @@ order: 6
 source: "https://x.com/AnatoliKopadze/status/2054568935274549597"
 sourceLabel: "X / Twitter"
 ---
-
+![](https://x.com/AnatoliKopadze/article/2054568935274549597/media/2054562274157682688)
 Claude đã ra ngoài được hai năm. Hầu hết những người sử dụng nó hàng ngày vẫn đang sử dụng 10% những gì nó có thể làm được.
 
 Không phải vì nó phức tạp. Bởi vì không ai cho họ thấy 90% còn lại trông như thế nào. Hướng dẫn này khắc phục điều đó. Cuối cùng, bạn sẽ thiết lập được Claude theo cách ghi nhớ bạn, hiểu bạn và làm việc theo cách bạn thực sự nghĩ. Và bạn sẽ biết cách sử dụng nó vào những việc mà hầu hết mọi người chưa bao giờ thử.
